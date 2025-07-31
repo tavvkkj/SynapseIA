@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Synapse IA</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+</head>
+<body>
+
+    <div class="main-container">
+        <aside class="sidebar-history">
+            <div class="sidebar-header">
+                <button id="new-chat-btn" class="sidebar-action-btn" aria-label="Iniciar nova conversa">
+                    <i class="fa-solid fa-plus" aria-hidden="true"></i>
+                    <span>Nova Conversa</span>
+                </button>
+            </div>
+            <nav class="history-nav">
+                <p class="history-title">Recentes</p>
+                <ul id="history-list">
+                    </ul>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="#" class="sidebar-footer-link" data-modal-target="help-modal"><i class="fa-solid fa-circle-question" aria-hidden="true"></i><span>Ajuda</span></a>
+                <a href="#" class="sidebar-footer-link" data-modal-target="activity-modal"><i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i><span>Atividade</span></a>
+                <a href="#" class="sidebar-footer-link" data-modal-target="profile-modal"><i class="fa-solid fa-user-pen" aria-hidden="true"></i><span>Editar Perfil</span></a>
+                <a href="#" class="sidebar-footer-link" id="theme-toggle-btn">
+                    </a>
+            </div>
+        </aside>
+
+        <div class="chat-wrapper">
+            <header class="top-bar">
+                 <div id="model-selector-container">
+                    <div class="model-selector" id="model-selector-active" role="button" aria-haspopup="true" aria-expanded="false" aria-controls="model-dropdown" tabindex="0">
+                        <i class="fa-solid fa-brain" aria-hidden="true"></i>
+                        <span id="selected-model-name">Synapse IA</span>
+                        <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+                    </div>
+                    <div id="model-dropdown" role="menu" aria-labelledby="model-selector-active">
+                    </div>
+                </div>
+                <div class="user-actions">
+                    <button class="top-bar-btn">PRO</button>
+                    <img src="https://i.ibb.co/7zS4Q1s/profile-placeholder.png" alt="Foto de Perfil" id="user-profile-pic">
+                </div>
+            </header>
+
+            <main class="chat-area">
+                <div id="chat-log">
+                    <div class="welcome-message-container">
+                         <div class="welcome-message">
+                            <h1 id="welcome-header">Olá!</h1>
+                            <p>Como posso te ajudar a aprender hoje?</p>
+                         </div>
+                         <div class="suggestion-cards">
+                            <div class="suggestion-card" data-prompt="Explique o conceito de Buracos Negros em termos simples.">
+                                <h4>Explique um Conceito</h4>
+                                <p>Buracos Negros em termos simples</p>
+                            </div>
+                             <div class="suggestion-card" data-prompt="Resuma os principais eventos da Revolução Francesa em uma lista.">
+                                <h4>Resuma um Tópico</h4>
+                                <p>Eventos da Revolução Francesa</p>
+                            </div>
+                             <div class="suggestion-card" data-prompt="Crie um roteiro de estudos de 7 dias para aprender o básico de Python.">
+                                <h4>Crie um Roteiro</h4>
+                                <p>Plano de estudos para Python</p>
+                            </div>
+                             <div class="suggestion-card" data-prompt="Como posso me preparar para uma apresentação importante na faculdade?">
+                                <h4>Dê uma Dica</h4>
+                                <p>Como se preparar para uma apresentação</p>
+                            </div>
+                         </div>
+                    </div>
+                </div>
+            </main>
+
+            <div class="chat-input-container">
+                <div id="image-preview-container" style="display: none;">
+                    <img id="image-preview" src="#" alt="Image preview"/>
+                    <button id="remove-image-btn" aria-label="Remover imagem"><i class="fa-solid fa-times" aria-hidden="true"></i></button>
+                </div>
+                <form id="chat-form" aria-label="Formulário de chat">
+                    <div class="input-wrapper">
+                        <input type="file" id="image-input" accept="image/*" style="display: none;" aria-hidden="true">
+                        <input type="text" id="chat-input" placeholder="Peça ao Synapse IA..." autocomplete="off" aria-label="Digite sua pergunta">
+                        <button type="button" id="attach-btn" class="chat-icon-btn" title="Anexar Imagem" aria-label="Anexar Imagem">
+                            <i class="fa-solid fa-paperclip" aria-hidden="true"></i>
+                        </button>
+                        <button type="submit" id="chat-send-btn" class="chat-icon-btn" title="Enviar Mensagem" aria-label="Enviar Mensagem">
+                            <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                </form>
+                 <p class="footer-info">O Synapse IA pode cometer erros. Considere verificar informações importantes.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-backdrop" id="modal-backdrop"></div>
+
+    <div class="modal" id="profile-modal">
+        <div class="modal-header">
+            <h2>Editar Perfil Local</h2>
+            <button class="close-modal-btn">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="profile-form">
+                <div class="profile-pic-editor">
+                    <img src="https://i.ibb.co/7zS4Q1s/profile-placeholder.png" alt="Prévia da foto de perfil" id="profile-pic-preview">
+                    <label for="profile-pic-input" class="profile-pic-upload-btn">
+                        <i class="fa-solid fa-camera"></i> Alterar Foto
+                    </label>
+                    <input type="file" id="profile-pic-input" accept="image/*" style="display: none;">
+                </div>
+                <div class="input-group">
+                    <label for="profile-name-input">Nome</label>
+                    <input type="text" id="profile-name-input" placeholder="Seu nome ou apelido">
+                </div>
+                <button id="save-profile-btn" class="auth-btn">Salvar Alterações</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="help-modal">
+        <div class="modal-header">
+            <h2>Ajuda</h2>
+            <button class="close-modal-btn">&times;</button>
+        </div>
+        <div class="modal-body">
+            <h3>Bem-vindo ao Synapse IA!</h3>
+            <p>Eu sou seu assistente pessoal para estudos. Você pode me pedir para:</p>
+            <ul>
+                <li>Explicar tópicos complexos.</li>
+                <li>Resumir textos ou artigos.</li>
+                <li>Resolver problemas matemáticos passo a passo.</li>
+                <li>Analisar imagens de exercícios ou documentos.</li>
+                <li>E muito mais!</li>
+            </ul>
+             <p>Use a barra de conversa abaixo para começar. Para enviar uma imagem, clique no ícone <i class="fa-solid fa-paperclip"></i>.</p>
+        </div>
+    </div>
+
+    <div class="modal" id="activity-modal">
+        <div class="modal-header">
+            <h2>Sua Atividade</h2>
+            <button class="close-modal-btn">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p>Esta é uma lista de suas conversas recentes salvas no seu navegador.</p>
+            <ul id="activity-history-list"></ul>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
