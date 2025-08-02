@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- ELEMENTOS DO DOM ---
+    const menuToggleBtn = document.getElementById('menu-toggle-btn'); // ADICIONADO
     const mainContainer = document.querySelector('.main-container');
     const authContainer = document.getElementById('auth-container');
     const authForm = document.getElementById('auth-form');
@@ -615,7 +616,30 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
-        // NOVO: Listener para colar imagem (Ctrl+V)
+        // --- LÓGICA DO MENU MOBILE (ADICIONADO) ---
+        if (menuToggleBtn) {
+            menuToggleBtn.addEventListener('click', () => {
+                document.body.classList.toggle('sidebar-visible');
+            });
+
+            const chatWrapper = document.querySelector('.chat-wrapper');
+            chatWrapper.addEventListener('click', (e) => {
+                // Fecha o menu se o overlay for clicado
+                if (document.body.classList.contains('sidebar-visible') && e.target === chatWrapper) {
+                     document.body.classList.remove('sidebar-visible');
+                }
+            });
+
+            historyList.addEventListener('click', (e) => {
+                // Fecha o menu ao selecionar uma conversa
+                if (e.target.closest('.history-item')) {
+                    document.body.classList.remove('sidebar-visible');
+                }
+            });
+        }
+        // --- FIM DO BLOCO ADICIONADO ---
+
+        // Listener para colar imagem (Ctrl+V)
         chatInput.addEventListener('paste', (e) => {
             if (e.clipboardData && e.clipboardData.files.length > 0) {
                 const file = e.clipboardData.files[0];
