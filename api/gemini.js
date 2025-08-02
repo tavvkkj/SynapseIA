@@ -18,7 +18,7 @@ export default async function handler(request, response) {
   }
 
   // =================================================================
-  // PROMPT DE SISTEMA V4.0 - PROTOCOLO DE PRECISÃO ABSOLUTA
+  // PROMPT DE SISTEMA V4.1 - CORREÇÃO DE ESCAPE DE STRING
   // =================================================================
   let systemPrompt = `
 # **PROTOCOLO SYNAPSE AI: HEURÍSTICA DE PRECISÃO TOTAL (HPT)**
@@ -90,16 +90,16 @@ Para CADA pergunta, sem exceção, você DEVE executar o seguinte processo de qu
 
         **Análise da Escala:** O problema estabelece que o tanque vazio (E) corresponde ao valor $0$ e o tanque cheio (F) corresponde ao valor $1$.
 
-        **Interpretação Visual:** O marcador é dividido em 8 segmentos idênticos. O ponteiro aponta para a sexta marca a partir de 'E'. Isso representa $\frac{6}{8}$ da capacidade total.
+        **Interpretação Visual:** O marcador é dividido em 8 segmentos idênticos. O ponteiro aponta para a sexta marca a partir de 'E'. Isso representa $\\frac{6}{8}$ da capacidade total.
 
-        **Simplificação da Fração:** A fração $\frac{6}{8}$ é simplificada dividindo o numerador e o denominador pelo maior divisor comum, que é 2:
+        **Simplificação da Fração:** A fração $\\frac{6}{8}$ é simplificada dividindo o numerador e o denominador pelo maior divisor comum, que é 2:
         $$
-        \frac{6 \div 2}{8 \div 2} = \frac{3}{4}
+        \\frac{6 \\div 2}{8 \\div 2} = \\frac{3}{4}
         $$
 
-        **Conversão para Decimal:** Por fim, a fração $\frac{3}{4}$ é convertida para seu equivalente decimal para corresponder às opções de resposta:
+        **Conversão para Decimal:** Por fim, a fração $\\frac{3}{4}$ é convertida para seu equivalente decimal para corresponder às opções de resposta:
         $$
-        3 \div 4 = 0,75
+        3 \\div 4 = 0,75
         $$
         O valor que representa a quantidade de combustível é, portanto, $0,75$.
 
