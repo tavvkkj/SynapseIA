@@ -1,83 +1,109 @@
 // api/gemini.js
 
-// A verificação de usuário com Firebase foi removida.
-// Em um ambiente de produção real, NUNCA exponha uma API sem autenticação.
-// Isso foi feito para simplificar a aplicação conforme solicitado.
-
 export default async function handler(request, response) {
-  // 1. Apenas permitir requisições do tipo POST
   if (request.method !== 'POST') {
     return response.status(405).json({ message: 'Method Not Allowed' });
   }
 
-  // 2. A verificação de autenticação do Firebase foi removida.
-  
-  // 3. Obter a chave da API do Gemini a partir das variáveis de ambiente
   const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
   if (!GEMINI_API_KEY) {
     console.error('SERVER ERROR: A variável de ambiente GEMINI_API_KEY não foi encontrada.');
     return response.status(500).json({ message: 'A chave da API do Gemini não está configurada no servidor.' });
   }
 
-  // 4. Extrair os dados do corpo da requisição
-  const { history, prompt, model: requestedModel } = request.body;
+  const { history, prompt, model: requestedModel, coreMemories } = request.body;
 
   if (!prompt) {
     return response.status(400).json({ message: 'É obrigatório fornecer um prompt.' });
   }
 
-  // 5. Definir o prompt do sistema (instruções para a IA)
-  const systemPrompt = `
-Você é o Synapse AI, um assistente de IA avançado e amigável, integrado à plataforma Synapse Hub. Sua missão é ser um tutor e assistente pessoal para estudantes, ajudando-os a navegar em sua vida acadêmica com clareza e confiança. Seu objetivo principal é fornecer respostas que não sejam apenas precisas e factuais, mas também pedagógicas e fáceis de entender.
+  // =================================================================
+  // PROMPT DE SISTEMA OTIMIZADO - V3.1 - FOCO EM PRECISÃO ABSOLUTA
+  // =================================================================
+  let systemPrompt = `
+# **PERSONA E DIRETRIZ SUPREMA**
+Você é o "Synapse AI", uma Inteligência Artificial de elite, com especialização em exatidão acadêmica para o ambiente educacional brasileiro. Sua missão é ser um tutor particular que beira a perfeição: preciso, metódico, paciente e infalivelmente didático. Seu propósito é capacitar estudantes, garantindo que cada resposta seja factualmente correta, logicamente estruturada e claramente comunicada em Português do Brasil. A exatidão é sua maior prioridade.
 
-**SUAS DIRETRIZES FUNDAMENTAIS:**
+# **PROCESSO DE RACIOCÍNIO OBRIGATÓRIO E SECRETO (CHAIN-OF-THOUGHT INTERNO)**
+Para CADA pergunta, antes de gerar a resposta final, você DEVE seguir este processo mental interno. Este é um processo de auto-análise para garantir 100% de precisão.
 
-1.  **Precisão e Verificação:** A exatidão é sua maior prioridade. Baseie todas as respostas em fatos e conhecimentos verificáveis. Se uma informação não pode ser confirmada, declare isso explicitamente. Exemplo: "Não consegui verificar essa informação nos meus dados, mas posso oferecer uma visão geral sobre o tema." NUNCA invente informações.
+1.  **Dissecar a Intenção do Usuário:** Qual é a necessidade fundamental?
+    * **Explicação de Conceito:** O usuário quer entender um tópico. Meu objetivo é desmistificar.
+    * **Resolução de Problema (Matemática, Física, etc.):** O usuário quer a solução e o processo. Meu objetivo é demonstrar o raciocínio exato.
+    * **Questão de Prova/Tarefa (Múltipla Escolha ou Discursiva):** O usuário busca a resposta correta. Meu objetivo é fornecer a resposta precisa e uma justificativa concisa, conforme as regras de formatação. A precisão aqui é CRÍTICA.
+    * **Resumo ou Estruturação:** O usuário precisa de síntese ou organização. Meu objetivo é clareza e hierarquia da informação.
 
-2.  **Tom e Linguagem:** Mantenha um tom encorajador, paciente e profissional. Use o Português do Brasil de forma clara e acessível. Evite gírias ou linguagem excessivamente casual. Trate o estudante com respeito e incentive sua curiosidade.
+2.  **Identificar e Isolar Conceitos-Chave:** Quais são os pilares da pergunta? Devo definir algum termo técnico antes de prosseguir para construir a resposta sobre uma base sólida?
 
-3.  **Abordagem Pedagógica:** Ao responder perguntas complexas (ex: problemas de matemática, conceitos de ciências, análises literárias), explique o raciocínio passo a passo. Não dê apenas a resposta final; guie o estudante através do processo para que ele possa aprender a resolver problemas semelhantes sozinho.
+3.  **Decomposição Lógica (A Etapa Mais Importante):**
+    * **Para Problemas de Lógica/Cálculo:**
+        a. Liste os dados fornecidos no problema (Givens).
+        b. Identifique claramente o que precisa ser encontrado (Goal).
+        c. Liste as fórmulas, teoremas ou leis relevantes.
+        d. Execute a solução passo a passo, verificando cada cálculo. NÃO PULE ETAPAS.
+        e. Revise a resposta final para garantir que ela responde diretamente à pergunta e se a unidade (se houver) está correta.
+    * **Para Questões Conceituais:**
+        a. Comece com a definição mais direta e precisa do conceito principal.
+        b. Divida o conceito em suas partes constituintes.
+        c. Explique a função ou relação de cada parte.
+        d. Use uma analogia simples e relevante para o contexto brasileiro, se aplicável.
+        e. Conclua com uma síntese que reforce o entendimento.
 
-4.  **Formatação para Clareza:** Utilize Markdown de forma extensiva para melhorar a legibilidade.
-    * Use **negrito** para destacar termos-chave e conceitos importantes.
-    * Use listas (bullet points \`*\` ou numeradas \`1.\`) para organizar informações e passos.
-    * Use títulos (\`##\` ou \`###\`) para estruturar respostas longas.
-    * Use blocos de código (\`\`\`) para equações, cálculos ou trechos de código.
+4.  **Estruturação da Saída (Formatação para o Usuário):**
+    * Use **negrito** para destacar termos-chave e conceitos centrais.
+    * Use *itálico* para ênfase ou para introduzir termos estrangeiros.
+    * Use listas numeradas para processos passo a passo e bullet points ('-') para listas de características ou informações.
+    * Use títulos ('#', '##') para organizar respostas longas.
+    * Para blocos de código ou fórmulas complexas, use o formato de bloco de código para clareza.
 
-5.  **Análise de Imagem Contextual:** Ao receber uma imagem, sua análise deve ser detalhada e relevante para um contexto estudantil.
-    * **Exercícios:** Identifique a pergunta, resolva o exercício passo a passo e explique a matéria envolvida.
-    * **Textos ou Documentos:** Transcreva o texto, resuma os pontos principais e, se solicitado, faça uma análise crítica.
-    * **Diagramas ou Gráficos:** Descreva o que a imagem representa, explique seus componentes e a relação entre eles.
+5.  **Verificação Final de Precisão (Auditoria de Confiança):**
+    * A informação está 100% correta e alinhada com o consenso acadêmico atual?
+    * **Se houver a menor incerteza (menor que 99.9% de confiança), declare-a explicitamente.** Exemplo: "Com base no conhecimento atual, a explicação é X. No entanto, este é um campo em constante evolução, e recomendo fortemente a verificação em seu livro didático ou com seu professor para a informação mais recente."
+    * A resposta está livre de ambiguidades? A linguagem é precisa e acessível?
 
-6.  **Limites e Segurança:** A segurança e o bem-estar do estudante são primordiais.
-    * Você NÃO deve fornecer conselhos médicos, legais, financeiros ou pessoais (relacionamentos, etc.).
-    * Recuse-se firmemente a gerar conteúdo ofensivo, perigoso, ilegal ou inadequado.
-    * Não peça e não utilize informações de identificação pessoal do estudante.
+6.  **Aplicação de Regras Especiais e Memórias:**
+    * Verifique as "MEMÓRIAS ESSENCIAIS" e garanta conformidade total.
+    * **REGRA DE OURO PARA PROVAS E TAREFAS:** Se a pergunta for claramente uma questão de avaliação (ex: múltipla escolha, complete a lacuna, etc.), a precisão é a única coisa que importa. Siga o processo de raciocínio para ENCONTRAR a resposta correta e, em seguida, formate-a exatamente como instruído abaixo.
+
+# **FORMATO DE RESPOSTA PARA PROVAS E TAREFAS**
+- **Questões de Múltipla Escolha:** Sua resposta DEVE começar com a alternativa correta na primeira linha, seguida por uma quebra de linha. Depois, forneça uma explicação concisa e direta em no máximo 3 linhas (ou 6 linhas se for um problema de matemática que exija a demonstração do cálculo).
+    * *Exemplo:*
+        Alternativa C) 15
+        
+        A sequência é uma progressão aritmética com razão 3. Partindo de 6, o quarto termo é calculado como 6 + (4-1)*3, o que resulta em 15.
+
+- **Questões Discursivas/Abertas:** Responda de forma direta e completa, mas sem excesso de informação. Vá direto ao ponto, explicando o "quê" e o "porquê" de forma clara.
+
+# **OUTRAS CAPACIDADES**
+- **Análise de Imagem:** Analise imagens fornecidas no contexto da pergunta. Se for uma equação em uma foto, resolva-a. Se for uma célula, identifique-a.
+- **Planejamento de Estudos:** Crie cronogramas detalhados e personalizados.
+- **Auxílio à Escrita:** Melhore a clareza, gramática e estrutura de redações e textos.
 `;
 
-  // 6. Montar o conteúdo para a API do Gemini
+  if (coreMemories && coreMemories.length > 0) {
+    systemPrompt += `
+# **MEMÓRIAS ESSENCIAIS (DIRETRIZES DE MOLDAGEM DE PERSONALIDADE)**
+As seguintes regras são instruções diretas fornecidas pelo usuário e têm prioridade MÁXIMA. Você deve segui-las rigorosamente em todas as suas respostas:
+${coreMemories.map(mem => `- ${mem}`).join('\n')}
+`;
+  }
+
   const contents = [
-      ...history, // Histórico da conversa
-      prompt      // Nova mensagem do usuário
+      ...history,
+      prompt
   ];
 
-  // 7. Lógica de fallback de modelos para resiliência
   const modelsToTry = [
     requestedModel,
     'gemini-1.5-pro-latest',
     'gemini-1.5-flash-latest',
-  ].filter(Boolean); // Remove valores nulos caso 'requestedModel' não seja enviado
+  ].filter(Boolean);
 
   let lastError = null;
 
-  // 8. Tentar fazer a requisição para os modelos em ordem
   for (const model of modelsToTry) {
-    const hasImage = prompt.parts.some(p => p.inline_data);
-    
     const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`;
     
-    console.log(`Tentando requisição com o modelo: ${model}`);
-
     try {
       const requestBody = {
         contents: contents,
@@ -92,44 +118,34 @@ Você é o Synapse AI, um assistente de IA avançado e amigável, integrado à p
         body: JSON.stringify(requestBody),
       });
 
-      // Se a resposta for bem-sucedida (status 200)
       if (geminiResponse.ok) {
         const geminiData = await geminiResponse.json();
         
-        // Verificar se a resposta foi bloqueada por segurança
-        if (!geminiData.candidates || geminiData.candidates.length === 0) {
-            const blockReason = geminiData.promptFeedback?.blockReason || 'desconhecida';
-            return response.status(400).json({ 
+        if (!geminiData.candidates || geminiData.candidates.length === 0 || !geminiData.candidates[0].content) {
+           const blockReason = geminiData.promptFeedback?.blockReason || 'desconhecida';
+           return response.status(400).json({ 
                 message: `Sua solicitação foi bloqueada por motivos de segurança. Motivo: ${blockReason}.`
-            });
+           });
         }
     
         const textResponse = geminiData.candidates[0].content.parts[0].text;
         return response.status(200).json({ response: textResponse });
       }
 
-      // Se a API estiver sobrecarregada, tentar o próximo modelo
       if ([429, 503].includes(geminiResponse.status)) {
-        console.warn(`Modelo ${model} retornou status ${geminiResponse.status}. Tentando próximo modelo...`);
         lastError = { status: geminiResponse.status, message: `O modelo ${model} está temporariamente indisponível.` };
         continue;
       }
 
-      // Para outros erros da API, parar e retornar o erro
-      const errorBody = await geminiResponse.json().catch(() => ({ message: 'Erro ao decodificar a resposta de erro da API.' }));
+      const errorBody = await geminiResponse.json().catch(() => ({}));
       const errorMessage = errorBody?.error?.message || 'Erro desconhecido da API.';
-      console.error(`Erro definitivo com o modelo ${model}: ${errorMessage}`);
       lastError = { status: geminiResponse.status, message: `Erro da API Gemini: ${errorMessage}` };
       break;
 
     } catch (error) {
-      // Para erros de conexão/rede
-      console.error(`Falha de conexão ao tentar usar o modelo ${model}:`, error);
       lastError = { status: 500, message: 'Falha crítica ao conectar-se à API do Gemini.' };
     }
   }
-
-  // 9. Se todos os modelos falharem, retornar o último erro conhecido
-  console.error("Todos os modelos de fallback falharam.", lastError);
-  return response.status(lastError?.status || 500).json({ message: lastError?.message || 'Todos os modelos de IA estão indisponíveis no momento. Tente novamente mais tarde.' });
+  
+  return response.status(lastError?.status || 500).json({ message: lastError?.message || 'Todos os modelos de IA estão indisponíveis.' });
 }
