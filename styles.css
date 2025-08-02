@@ -312,6 +312,11 @@ body {
     flex-shrink: 0;
 }
 
+/* Esconde o botão do menu por padrão (visível em mobile) */
+#menu-toggle-btn {
+    display: none;
+}
+
 #model-selector-container { position: relative; }
 .model-selector { display: flex; align-items: center; gap: 10px; font-size: 1.2rem; font-weight: 500; cursor: pointer; padding: 8px; border-radius: var(--border-radius); }
 .model-selector > i:first-child { color: var(--text-secondary); }
@@ -868,4 +873,101 @@ body.light-theme .bot-message pre {
 }
 .memory-item button:hover {
     color: var(--error-color);
+}
+
+
+/* =============================================== */
+/* ESTILOS PARA DISPOSITIVOS MÓVEIS (MAX-WIDTH: 768px) */
+/* =============================================== */
+@media (max-width: 768px) {
+
+    /* --- Botão do Menu (Hambúrguer) --- */
+    #menu-toggle-btn {
+        display: flex; /* Mostra o botão do menu em telas pequenas */
+        margin-right: 10px;
+    }
+
+    /* --- Barra Lateral (Sidebar) --- */
+    .sidebar-history {
+        position: fixed; /* Posição fixa para deslizar sobre o conteúdo */
+        left: 0;
+        top: 0;
+        height: 100%;
+        z-index: 2000; /* Z-index alto para ficar na frente de tudo */
+        transform: translateX(-100%); /* Esconde o menu para a esquerda por padrão */
+        transition: transform 0.3s ease-in-out;
+        box-shadow: 0 0 25px rgba(0,0,0,0.5);
+        border-right: 1px solid var(--border-color);
+    }
+
+    /* --- Estado Visível da Sidebar --- */
+    body.sidebar-visible .sidebar-history {
+        transform: translateX(0); /* Move o menu para a posição visível */
+    }
+
+    /* --- Overlay (fundo escurecido) --- */
+    .chat-wrapper::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1999; /* Fica atrás do menu, mas na frente do conteúdo */
+        opacity: 0;
+        pointer-events: none; /* Não pode ser clicado por padrão */
+        transition: opacity 0.3s ease-in-out;
+    }
+
+    body.sidebar-visible .chat-wrapper::before {
+        opacity: 1;
+        pointer-events: auto; /* Permite clicar para fechar o menu */
+    }
+    
+    /* --- Ajustes no Layout Principal --- */
+    .main-container {
+        flex-direction: column; /* Organiza a sidebar e o chat verticalmente (não visualmente) */
+    }
+
+    .chat-wrapper {
+        width: 100%;
+        transition: filter 0.3s ease-in-out;
+    }
+
+    /* --- Topo e Conteúdo Principal --- */
+    .top-bar {
+        padding: 0.5rem 1rem; /* Menor preenchimento na barra superior */
+    }
+
+    #chat-log {
+        padding: 1rem; /* Menor preenchimento na área de chat */
+    }
+    
+    /* --- Tela de Boas-Vindas --- */
+    .welcome-message h1 {
+        font-size: 2rem; /* Fonte menor no título de boas-vindas */
+    }
+    .suggestion-cards {
+        grid-template-columns: 1fr; /* As sugestões ficam em uma única coluna */
+        gap: 0.75rem;
+        margin-top: 2rem;
+        max-width: 100%;
+    }
+
+    /* --- Modais --- */
+    .modal {
+        width: 95%; /* Modais ocupam mais da tela */
+    }
+
+    /* --- Formulário de Login --- */
+    .ra-digito-uf-row {
+        flex-direction: column; /* Empilha os campos de RA */
+        gap: 15px;
+        align-items: stretch;
+    }
+    .ra-digito-uf-row .form-group {
+        margin-bottom: 0;
+    }
+
 }
