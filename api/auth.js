@@ -1,22 +1,19 @@
 // api/auth.js
-
 import { promises as fs } from 'fs';
 import path from 'path';
 
-// O caminho para o nosso "banco de dados" de perfis
-const PROFILES_DB_PATH = path.join(process.cwd(), 'profiles.json');
+// **CORREÇÃO:** Altera o caminho para o diretório /tmp, que é gravável na Vercel.
+const PROFILES_DB_PATH = path.join('/tmp', 'profiles.json');
 
 // Função para ler o arquivo de perfis
 async function readProfiles() {
     try {
+        await fs.access(PROFILES_DB_PATH); // Verifica se o arquivo existe
         const data = await fs.readFile(PROFILES_DB_PATH, 'utf8');
         return JSON.parse(data);
     } catch (error) {
-        // Se o arquivo não existir, retorna um objeto vazio (primeira execução)
-        if (error.code === 'ENOENT') {
-            return {};
-        }
-        throw error;
+        // Se o arquivo não existir ou ocorrer outro erro na leitura, retorna um objeto vazio.
+        return {};
     }
 }
 
@@ -41,7 +38,7 @@ export default async function handler(request, response) {
 
         const profiles = await readProfiles();
         const existingProfile = profiles[ra] || {};
-        
+
         let finalProfile;
 
         if (isLoginEvent) {
@@ -66,9 +63,7 @@ export default async function handler(request, response) {
             };
         }
         
-        // **CORREÇÃO APLICADA AQUI**
-        // Garante que o campo 'ra' esteja sempre presente no objeto de perfil
-        // antes de ser salvo e retornado ao frontend.
+        // Garante que o campo 'ra' esteja sempre presente
         finalProfile.ra = ra;
 
         profiles[ra] = finalProfile;
