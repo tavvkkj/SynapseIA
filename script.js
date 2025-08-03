@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- ELEMENTOS DO DOM ---
-    const menuToggleBtn = document.getElementById('menu-toggle-btn'); // ADICIONADO
+    const menuToggleBtn = document.getElementById('menu-toggle-btn');
     const mainContainer = document.querySelector('.main-container');
     const authContainer = document.getElementById('auth-container');
     const authForm = document.getElementById('auth-form');
@@ -27,16 +27,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const welcomeHeader = document.getElementById('welcome-header');
     const stopGeneratingBtn = document.getElementById('stop-generating-btn');
     const historySearchInput = document.getElementById('history-search-input');
-
-    // --- ELEMENTOS DO MODAL DE PERFIL ---
     const modalBackdrop = document.getElementById('modal-backdrop');
     const allModals = document.querySelectorAll('.modal');
     const profilePicPreview = document.getElementById('profile-pic-preview');
     const profilePicInput = document.getElementById('profile-pic-input');
     const profileNameInput = document.getElementById('profile-name-input');
     const saveProfileBtn = document.getElementById('save-profile-btn');
-
-    // --- ELEMENTOS DO MODAL DE CONFIGURAÇÕES ---
     const settingsModal = document.getElementById('settings-modal');
     const tabButtons = settingsModal.querySelectorAll('.tab-btn');
     const tabContents = settingsModal.querySelectorAll('.tab-content');
@@ -45,34 +41,77 @@ document.addEventListener('DOMContentLoaded', () => {
     const memoryList = document.getElementById('memory-list');
     const clearAllChatsBtn = document.getElementById('clear-all-chats-btn');
 
-
     // --- VARIÁVEIS DE ESTADO ---
     const SYNAPSE_GEMINI_API_URL = '/api/gemini';
     const SYNAPSE_AUTH_API_URL = '/api/auth';
     let geminiSelectedFile = null;
-    let localProfile = {}; // Armazena dados do usuário logado
+    let localProfile = {};
     let currentChatId = null;
     let currentChatHistory = [];
     let abortController = null;
-
+    
     // --- LÓGICA DE SELEÇÃO DE MODELO ---
     const availableModels = {
-        'gemini-2.5-pro': { name: "Gemini 2.5 Pro", desc: "O modelo de fronteira, mais capaz." },
-        'gemini-2.5-flash': { name: "Gemini 2.5 Flash", desc: "Velocidade e eficiência de ponta." },
         'gemini-1.5-pro-latest': { name: "Gemini 1.5 Pro", desc: "Modelo poderoso e preciso." },
         'gemini-1.5-flash-latest': { name: "Gemini 1.5 Flash", desc: "Equilíbrio entre velocidade e performance." },
     };
-    let selectedModel = 'gemini-2.5-pro';
+    let selectedModel = 'gemini-1.5-pro-latest';
 
     marked.setOptions({
-      highlight: function(code, lang) {
-        const language = hljs.getLanguage(lang) ? lang : 'plaintext';
-        return hljs.highlight(code, { language }).value;
-      },
-      langPrefix: 'hljs language-',
-      breaks: true,
-      gfm: true,
+        highlight: function(code, lang) {
+            const language = hljs.getLanguage(lang) ? lang : 'plaintext';
+            return hljs.highlight(code, { language }).value;
+        },
+        langPrefix: 'hljs language-',
+        breaks: true,
+        gfm: true,
     });
+    
+    // =================================================================
+    // INICIALIZAÇÃO E SESSÃO
+    // =================================================================
+    
+    const checkForActiveSession = async () => {
+        const activeRa = localStorage.getItem('synapse-active-ra');
+        if (!activeRa) {
+            // Se não há RA ativo, garante que a tela de login seja exibida.
+            authContainer.style.display = 'flex';
+            mainContainer.style.display = 'none';
+            return;
+        }
+
+        try {
+            const response = await fetch(SYNAPSE_AUTH_API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ra: activeRa, isSessionCheck: true })
+            });
+
+            if (!response.ok) {
+                // Se o perfil não for encontrado ou houver erro, limpa a sessão inválida e mostra o login.
+                localStorage.removeItem('synapse-active-ra');
+                authContainer.style.display = 'flex';
+                mainContainer.style.display = 'none';
+                return;
+            }
+            
+            const data = await response.json();
+            if (data.success) {
+                localProfile = data.profile;
+                authContainer.style.display = 'none';
+                mainContainer.style.display = 'flex';
+                initializeApp();
+            } else {
+                localStorage.removeItem('synapse-active-ra');
+                authContainer.style.display = 'flex';
+                mainContainer.style.display = 'none';
+            }
+        } catch (error) {
+            console.error("Erro ao verificar sessão:", error);
+            authContainer.style.display = 'flex';
+            mainContainer.style.display = 'none';
+        }
+    };
 
     // =================================================================
     // SEÇÃO: LÓGICA DE AUTENTICAÇÃO, PERFIL E AVATAR
@@ -85,39 +124,31 @@ document.addEventListener('DOMContentLoaded', () => {
     const normalizeRA = (raValue) => {
         if (!raValue) return "";
         const alphanumericPart = raValue.replace(/[^0-9a-zA-Z]/g, '').toUpperCase();
-        // Garante que o UF (SP) esteja no final, removendo duplicatas se houver
         const raWithoutSP = alphanumericPart.endsWith('SP') ? alphanumericPart.slice(0, -2) : alphanumericPart;
         return `${raWithoutSP}SP`;
     };
-
+    
     const generateInitialsAvatar = (fullName) => {
         if (!fullName) return 'https://i.ibb.co/7zS4Q1s/profile-placeholder.png';
         const names = fullName.split(' ');
         const firstName = names[0];
         const lastName = names.length > 1 ? names[names.length - 1] : '';
         const initials = `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
-
         const canvas = document.createElement('canvas');
         const context = canvas.getContext('2d');
         canvas.width = 128;
         canvas.height = 128;
-
         const colors = ["#ef5350", "#ab47bc", "#5c6bc0", "#29b6f6", "#26a69a", "#ffca28", "#ff7043", "#78909c"];
         let hash = 0;
-        for (let i = 0; i < fullName.length; i++) {
-            hash = fullName.charCodeAt(i) + ((hash << 5) - hash);
-        }
+        for (let i = 0; i < fullName.length; i++) hash = fullName.charCodeAt(i) + ((hash << 5) - hash);
         const color = colors[Math.abs(hash % colors.length)];
-
         context.fillStyle = color;
         context.fillRect(0, 0, canvas.width, canvas.height);
-
         context.font = 'bold 52px Poppins';
         context.fillStyle = '#FFF';
         context.textAlign = 'center';
         context.textBaseline = 'middle';
         context.fillText(initials, canvas.width / 2, canvas.height / 2);
-
         return canvas.toDataURL('image/png');
     };
 
@@ -133,27 +164,12 @@ document.addEventListener('DOMContentLoaded', () => {
             },
             body: JSON.stringify({ user: ra, senha: password })
         });
-        if (!response.ok) { throw new Error(`Falha no login da SED: ${response.statusText}`); }
+        if (!response.ok) throw new Error(`Falha no login da SED: ${response.statusText}`);
         const data = await response.json();
-        if (!data.token) { throw new Error('Token não encontrado na resposta do login da SED.'); }
+        if (!data.token) throw new Error('Token não encontrado na resposta do login da SED.');
         return data;
     };
-
-    const getToken = async (seducsp_token) => {
-        const response = await fetch("https://edusp-api.ip.tv/registration/edusp/token", {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-                'X-Api-Platform': 'webclient',
-                'X-Api-Realm': 'edusp'
-            },
-            body: JSON.stringify({ token: seducsp_token })
-        });
-        if (!response.ok) { throw new Error(`Falha ao obter Token EDUSP: ${response.statusText}`); }
-        return await response.json();
-    };
-
+    
     const saveProfileToApi = async (profileData) => {
         try {
             const response = await fetch(SYNAPSE_AUTH_API_URL, {
@@ -162,7 +178,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify(profileData)
             });
             if (!response.ok) throw new Error('Falha ao salvar o perfil no servidor.');
-            return await response.json(); 
+            return await response.json();
         } catch (error) {
             console.error("Erro ao salvar perfil na API:", error);
             showNotification('Não foi possível salvar seu perfil. Suas alterações podem não persistir.');
@@ -172,16 +188,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     authForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        // ATUALIZADO: Captura dos novos campos de RA
         const raNumber = document.getElementById('auth-ra-number').value;
         const raDigit = document.getElementById('auth-ra-digit').value;
         const raState = document.getElementById('auth-ra-state').value;
         const password = document.getElementById('auth-password').value;
-
-        // Combina e normaliza o RA
         const combinedRa = `${raNumber}${raDigit}${raState}`;
         const ra = normalizeRA(combinedRa);
-
         authButton.disabled = true;
         authButton.querySelector('span').textContent = 'Verificando...';
         authButton.querySelector('i').style.display = 'inline-block';
@@ -189,41 +201,35 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             const loginData = await loginCompletoToken(ra, password);
-            await getToken(loginData.token);
             const fullName = loginData.DadosUsuario?.NAME || 'Usuário';
             const firstName = fullName.split(' ')[0];
             const formattedName = firstName.charAt(0).toUpperCase() + firstName.slice(1).toLowerCase();
             const generatedAvatar = generateInitialsAvatar(fullName);
-
             const defaultProfileData = {
                 ra,
-                password,
                 name: formattedName,
                 fullName: fullName,
                 profilePic: generatedAvatar,
-                nickname: loginData.DadosUsuario?.NM_NICK,
                 userId: loginData.DadosUsuario?.CD_USUARIO,
                 emails: {
                     google: loginData.DadosUsuario?.EMAIL_GOOGLE,
                     microsoft: loginData.DadosUsuario?.EMAIL_MS
                 },
-                phone: loginData.DadosUsuario?.A?.[0]?.NR_TELEFONE || null,
                 isLoginEvent: true
             };
-
             const apiResponse = await saveProfileToApi(defaultProfileData);
-
             if (!apiResponse || !apiResponse.success) {
                 throw new Error("Não foi possível salvar ou carregar o perfil do servidor.");
             }
-
             localProfile = apiResponse.profile;
+
+            // ADICIONADO: Salva o RA no localStorage para criar a sessão
+            localStorage.setItem('synapse-active-ra', ra);
 
             authContainer.style.display = 'none';
             mainContainer.style.display = 'flex';
             mainContainer.style.animation = 'fadeIn 0.5s ease-in-out';
             initializeApp();
-
         } catch (error) {
             showNotification(`Erro de autenticação: ${error.message}`);
         } finally {
@@ -232,6 +238,13 @@ document.addEventListener('DOMContentLoaded', () => {
             authButton.querySelector('i').style.display = 'none';
         }
     });
+    
+    const handleLogout = () => {
+        // MODIFICADO: Limpa o RA do localStorage para encerrar a sessão
+        localStorage.removeItem('synapse-active-ra');
+        localProfile = {}; // Limpa o perfil local
+        location.reload(); // Recarrega a página para voltar à tela de login
+    };
 
     const updateUIWithProfile = () => {
         welcomeHeader.textContent = `Olá, ${localProfile.name}!`;
@@ -239,20 +252,17 @@ document.addEventListener('DOMContentLoaded', () => {
         profilePicPreview.src = localProfile.profilePic;
         profileNameInput.value = localProfile.name;
     };
-
+    
     saveProfileBtn.addEventListener('click', () => {
         const newName = profileNameInput.value.trim();
         const newPicFile = profilePicInput.files[0];
-
         const profileUpdate = { ra: localProfile.ra };
-
         const handleSave = (newPicBase64) => {
             if (newName && newName !== localProfile.name) profileUpdate.name = newName;
             if (newPicBase64) profileUpdate.profilePic = newPicBase64;
-
-            if (Object.keys(profileUpdate).length > 1) { 
+            if (Object.keys(profileUpdate).length > 1) {
                 saveProfileToApi(profileUpdate).then(apiResponse => {
-                    if(apiResponse && apiResponse.success) {
+                    if (apiResponse && apiResponse.success) {
                         localProfile = apiResponse.profile;
                         updateUIWithProfile();
                         closeAllModals();
@@ -262,7 +272,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 closeAllModals();
             }
         };
-
         if (newPicFile) {
             const reader = new FileReader();
             reader.onload = (e) => handleSave(e.target.result);
@@ -281,13 +290,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // =================================================================
-    // LÓGICA DE GERENCIAMENTO DE MEMÓRIAS E CHAT
-    // =================================================================
+    // ... (O restante do seu arquivo script.js, como as funções de chat, etc. permanecem as mesmas)
+    // Apenas certifique-se de que o listener do botão de logout chame a nova função handleLogout.
+
+    // ... (código existente) ...
 
     const getCoreMemories = () => JSON.parse(localStorage.getItem(`synapse-memories-${localProfile.ra}`) || '[]');
     const saveCoreMemories = (memories) => localStorage.setItem(`synapse-memories-${localProfile.ra}`, JSON.stringify(memories));
-
+    
     const renderMemoryList = () => {
         const memories = getCoreMemories();
         memoryList.innerHTML = '';
@@ -405,10 +415,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // =================================================================
-    // FUNÇÕES UTILITÁRIAS E DE UI
-    // =================================================================
-
     const sunIcon = '<i class="fa-solid fa-sun" aria-hidden="true"></i><span>Tema Claro</span>';
     const moonIcon = '<i class="fa-solid fa-moon" aria-hidden="true"></i><span>Tema Escuro</span>';
 
@@ -506,11 +512,10 @@ document.addEventListener('DOMContentLoaded', () => {
         let htmlContent = (type === 'loading') ? `<i class="fa-solid fa-spinner fa-spin"></i>` : marked.parse(text);
         
         if (type === 'error') {
-            htmlContent = text; // Não processa markdown para erros
+            htmlContent = text;
         }
         
         if (type === 'user') {
-            // Para mensagens do usuário, apenas exibe o texto e a imagem
             messageEl.innerHTML = `<p>${text}</p>`;
             if (imageUrl) {
                 messageEl.innerHTML += `<img src="${imageUrl}" alt="Anexo do usuário" class="user-image-attachment">`;
@@ -526,7 +531,7 @@ document.addEventListener('DOMContentLoaded', () => {
         chatLog.scrollTop = chatLog.scrollHeight;
         return messageEl;
     };
-
+    
     const addCopyButtonsToCodeBlocks = (container) => {
         container.querySelectorAll('pre').forEach((preElement) => {
             if (preElement.querySelector('.copy-code-btn')) return;
@@ -595,7 +600,7 @@ document.addEventListener('DOMContentLoaded', () => {
         modalBackdrop.classList.remove('visible');
         allModals.forEach(modal => modal.classList.remove('visible'));
     };
-
+    
     const initializeApp = () => {
         const savedTheme = localStorage.getItem('synapse-theme') || 'dark';
         applyTheme(savedTheme);
@@ -616,30 +621,21 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
-        // --- LÓGICA DO MENU MOBILE (ADICIONADO) ---
         if (menuToggleBtn) {
-            menuToggleBtn.addEventListener('click', () => {
-                document.body.classList.toggle('sidebar-visible');
-            });
-
+            menuToggleBtn.addEventListener('click', () => document.body.classList.toggle('sidebar-visible'));
             const chatWrapper = document.querySelector('.chat-wrapper');
             chatWrapper.addEventListener('click', (e) => {
-                // Fecha o menu se o overlay for clicado
                 if (document.body.classList.contains('sidebar-visible') && e.target === chatWrapper) {
                      document.body.classList.remove('sidebar-visible');
                 }
             });
-
             historyList.addEventListener('click', (e) => {
-                // Fecha o menu ao selecionar uma conversa
                 if (e.target.closest('.history-item')) {
                     document.body.classList.remove('sidebar-visible');
                 }
             });
         }
-        // --- FIM DO BLOCO ADICIONADO ---
-
-        // Listener para colar imagem (Ctrl+V)
+        
         chatInput.addEventListener('paste', (e) => {
             if (e.clipboardData && e.clipboardData.files.length > 0) {
                 const file = e.clipboardData.files[0];
@@ -650,11 +646,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        imageInput.addEventListener('change', () => {
-            const file = imageInput.files[0];
-            handleImageFile(file);
-        });
-
+        imageInput.addEventListener('change', () => handleImageFile(imageInput.files[0]));
         themeToggleBtn.addEventListener('click', (e) => {
             e.preventDefault();
             const newTheme = document.body.classList.contains('light-theme') ? 'dark' : 'light';
@@ -669,10 +661,13 @@ document.addEventListener('DOMContentLoaded', () => {
             e.stopPropagation();
             profileDropdown.classList.toggle('visible');
         });
+        
+        // MODIFICADO: Chama a função de logout correta.
         logoutBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            location.reload();
+            handleLogout();
         });
+
         document.addEventListener('click', (e) => {
             if (modelDropdown.classList.contains('visible') && !modelSelectorActive.contains(e.target)) modelDropdown.classList.remove('visible');
             if (profileDropdown.classList.contains('visible') && !userProfilePic.contains(e.target) && !profileDropdown.contains(e.target)) profileDropdown.classList.remove('visible');
@@ -721,4 +716,7 @@ document.addEventListener('DOMContentLoaded', () => {
             modelDropdown.appendChild(option);
         }
     }
+    
+    // Inicia o processo de verificação da sessão assim que o DOM estiver pronto.
+    checkForActiveSession();
 });
