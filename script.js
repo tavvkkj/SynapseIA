@@ -1,8 +1,10 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- ELEMENTOS DO DOM ---
+    const sessionLoadingModal = document.getElementById('session-loading-modal'); // NOVO
     const menuToggleBtn = document.getElementById('menu-toggle-btn');
     const mainContainer = document.querySelector('.main-container');
     const authContainer = document.getElementById('auth-container');
+    // ... (restante dos seletores do DOM permanecem os mesmos)
     const authForm = document.getElementById('auth-form');
     const authButton = document.getElementById('auth-button');
     const notificationArea = document.getElementById('notification-area');
@@ -41,6 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const memoryList = document.getElementById('memory-list');
     const clearAllChatsBtn = document.getElementById('clear-all-chats-btn');
 
+
     // --- VARIÁVEIS DE ESTADO ---
     const SYNAPSE_GEMINI_API_URL = '/api/gemini';
     const SYNAPSE_AUTH_API_URL = '/api/auth';
@@ -68,19 +71,30 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     
     // =================================================================
-    // INICIALIZAÇÃO E SESSÃO
+    // INICIALIZAÇÃO E SESSÃO (MODIFICADO)
     // =================================================================
     
     const checkForActiveSession = async () => {
         const activeRa = localStorage.getItem('synapse-active-ra');
-        if (!activeRa) {
-            // Se não há RA ativo, garante que a tela de login seja exibida.
+        
+        const showLogin = () => {
+            sessionLoadingModal.classList.remove('visible');
             authContainer.style.display = 'flex';
             mainContainer.style.display = 'none';
+        };
+
+        if (!activeRa) {
+            showLogin();
             return;
         }
 
+        // MOSTRA o modal de carregamento
+        sessionLoadingModal.classList.add('visible');
+
         try {
+            // Adiciona um pequeno delay para a animação ser percebida
+            await new Promise(resolve => setTimeout(resolve, 500));
+
             const response = await fetch(SYNAPSE_AUTH_API_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -88,35 +102,33 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             if (!response.ok) {
-                // Se o perfil não for encontrado ou houver erro, limpa a sessão inválida e mostra o login.
                 localStorage.removeItem('synapse-active-ra');
-                authContainer.style.display = 'flex';
-                mainContainer.style.display = 'none';
+                showLogin();
                 return;
             }
             
             const data = await response.json();
             if (data.success) {
                 localProfile = data.profile;
+                sessionLoadingModal.classList.remove('visible');
                 authContainer.style.display = 'none';
                 mainContainer.style.display = 'flex';
                 initializeApp();
             } else {
                 localStorage.removeItem('synapse-active-ra');
-                authContainer.style.display = 'flex';
-                mainContainer.style.display = 'none';
+                showLogin();
             }
         } catch (error) {
             console.error("Erro ao verificar sessão:", error);
-            authContainer.style.display = 'flex';
-            mainContainer.style.display = 'none';
+            showLogin();
         }
     };
 
     // =================================================================
-    // SEÇÃO: LÓGICA DE AUTENTICAÇÃO, PERFIL E AVATAR
+    // O RESTANTE DO SCRIPT.JS (LÓGICA DE AUTENTICAÇÃO, CHAT, ETC.)
     // =================================================================
-
+    // Nenhuma outra alteração é necessária no resto do seu script.js.
+    // Cole o restante do seu código aqui.
     const showNotification = (message, type = 'error') => {
         notificationArea.innerHTML = `<div class="notification-banner ${type}">${message}</div>`;
     };
@@ -222,8 +234,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error("Não foi possível salvar ou carregar o perfil do servidor.");
             }
             localProfile = apiResponse.profile;
-
-            // ADICIONADO: Salva o RA no localStorage para criar a sessão
+            
             localStorage.setItem('synapse-active-ra', ra);
 
             authContainer.style.display = 'none';
@@ -240,10 +251,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     
     const handleLogout = () => {
-        // MODIFICADO: Limpa o RA do localStorage para encerrar a sessão
         localStorage.removeItem('synapse-active-ra');
-        localProfile = {}; // Limpa o perfil local
-        location.reload(); // Recarrega a página para voltar à tela de login
+        localProfile = {}; 
+        location.reload(); 
     };
 
     const updateUIWithProfile = () => {
@@ -289,12 +299,6 @@ document.addEventListener('DOMContentLoaded', () => {
             reader.readAsDataURL(file);
         }
     });
-
-    // ... (O restante do seu arquivo script.js, como as funções de chat, etc. permanecem as mesmas)
-    // Apenas certifique-se de que o listener do botão de logout chame a nova função handleLogout.
-
-    // ... (código existente) ...
-
     const getCoreMemories = () => JSON.parse(localStorage.getItem(`synapse-memories-${localProfile.ra}`) || '[]');
     const saveCoreMemories = (memories) => localStorage.setItem(`synapse-memories-${localProfile.ra}`, JSON.stringify(memories));
     
@@ -662,7 +666,6 @@ document.addEventListener('DOMContentLoaded', () => {
             profileDropdown.classList.toggle('visible');
         });
         
-        // MODIFICADO: Chama a função de logout correta.
         logoutBtn.addEventListener('click', (e) => {
             e.preventDefault();
             handleLogout();
@@ -717,6 +720,5 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    // Inicia o processo de verificação da sessão assim que o DOM estiver pronto.
     checkForActiveSession();
 });
