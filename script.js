@@ -54,8 +54,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const availableModels = {
         'gemini-1.5-pro-latest': { name: "Gemini 1.5 Pro", desc: "Modelo poderoso e preciso." },
         'gemini-1.5-flash-latest': { name: "Gemini 1.5 Flash", desc: "Equilíbrio entre velocidade e performance." },
+        'gemini-2.5-pro': {name: "Gemini 2.5 Pro", desc: "Modelo extremamente poderoso para calculos e contas."},
+        'gemini-2.5-flash': {name: "Gemini 2.5 Flash", desc: "Modelo poderoso e rápido."},
     };
-    let selectedModel = 'gemini-1.5-pro-latest';
+    let selectedModel = 'gemini-2.5-pro';
 
     marked.setOptions({
         highlight: function(code, lang) {
