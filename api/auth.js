@@ -2,22 +2,23 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 
-// **CORREÇÃO:** Altera o caminho para o diretório /tmp, que é gravável na Vercel.
+// O caminho aponta para o diretório /tmp, que é gravável em ambientes serverless como a Vercel.
+// Lembre-se: este armazenamento é temporário e não persistirá entre deployments ou "hibernações" do servidor.
 const PROFILES_DB_PATH = path.join('/tmp', 'profiles.json');
 
-// Função para ler o arquivo de perfis
+// Função para ler o arquivo de perfis de forma segura.
 async function readProfiles() {
     try {
-        await fs.access(PROFILES_DB_PATH); // Verifica se o arquivo existe
+        await fs.access(PROFILES_DB_PATH);
         const data = await fs.readFile(PROFILES_DB_PATH, 'utf8');
         return JSON.parse(data);
     } catch (error) {
-        // Se o arquivo não existir ou ocorrer outro erro na leitura, retorna um objeto vazio.
+        // Se o arquivo não existir ou estiver corrompido, retorna um objeto vazio.
         return {};
     }
 }
 
-// Função para escrever no arquivo de perfis
+// Função para escrever no arquivo de perfis.
 async function writeProfiles(data) {
     await fs.writeFile(PROFILES_DB_PATH, JSON.stringify(data, null, 2), 'utf8');
 }
@@ -28,56 +29,62 @@ export default async function handler(request, response) {
     }
 
     try {
-        const { ra, isLoginEvent, ...profileDataFromClient } = request.body;
+        const { ra, isLoginEvent, isSessionCheck, ...profileDataFromClient } = request.body;
 
         if (!ra) {
-            return response.status(400).json({ message: 'RA é obrigatório.' });
+            return response.status(400).json({ success: false, message: 'RA é obrigatório.' });
         }
-
-        console.log(`[AUTH API] Requisição recebida para RA: ${ra}. É um evento de login? ${!!isLoginEvent}`);
 
         const profiles = await readProfiles();
         const existingProfile = profiles[ra] || {};
 
+        // REMOVIDO: Nunca salve senhas no seu banco de dados.
+        if (profileDataFromClient.password) {
+            delete profileDataFromClient.password;
+        }
+
+        // NOVO: Lógica para restaurar a sessão sem precisar de login
+        if (isSessionCheck) {
+            if (existingProfile.ra) {
+                console.log(`[AUTH API] Sessão restaurada para o RA: ${ra}`);
+                return response.status(200).json({ success: true, profile: existingProfile });
+            } else {
+                return response.status(404).json({ success: false, message: 'Perfil não encontrado para a sessão ativa.' });
+            }
+        }
+        
         let finalProfile;
 
+        // LÓGICA DE MERGE CORRIGIDA
         if (isLoginEvent) {
-            // LÓGICA DE LOGIN
-            let mergedProfile = { ...existingProfile, ...profileDataFromClient };
-            
-            if (existingProfile.name) {
-                mergedProfile.name = existingProfile.name;
-            }
-
-            if (existingProfile.profilePic) {
-                mergedProfile.profilePic = existingProfile.profilePic;
-            }
-            
-            finalProfile = mergedProfile;
-
+            // Durante o login, os dados do cliente (vindos da SED) atualizam o perfil,
+            // mas os dados existentes (personalizados pelo usuário, como 'name' e 'profilePic') têm prioridade.
+            finalProfile = {
+                ...profileDataFromClient, // Aplica os dados novos (email, etc.)
+                ...existingProfile,       // Sobrescreve com os dados já salvos (nome/foto personalizados)
+            };
         } else {
-            // LÓGICA DE EDIÇÃO DE PERFIL
+            // Lógica de edição de perfil: simplesmente mescla as novas alterações.
             finalProfile = {
                 ...existingProfile,
                 ...profileDataFromClient
             };
         }
-        
-        // Garante que o campo 'ra' esteja sempre presente
-        finalProfile.ra = ra;
+
+        finalProfile.ra = ra; // Garante que o RA esteja sempre presente.
 
         profiles[ra] = finalProfile;
         await writeProfiles(profiles);
 
-        // Retorna o perfil final e correto para o frontend
-        return response.status(200).json({ 
-            success: true, 
+        console.log(`[AUTH API] Perfil salvo para o RA: ${ra}`);
+        return response.status(200).json({
+            success: true,
             message: 'Perfil salvo com sucesso.',
-            profile: finalProfile 
+            profile: finalProfile
         });
 
     } catch (error) {
         console.error('[AUTH API] Erro crítico:', error);
-        return response.status(500).json({ message: 'Internal Server Error' });
+        return response.status(500).json({ success: false, message: 'Internal Server Error' });
     }
 }
