@@ -1,27 +1,24 @@
 // api/auth.js
-import { promises as fs } from 'fs';
-import path from 'path';
+import admin from 'firebase-admin';
 
-// O caminho aponta para o diretório /tmp, que é gravável em ambientes serverless como a Vercel.
-// Lembre-se: este armazenamento é temporário e não persistirá entre deployments ou "hibernações" do servidor.
-const PROFILES_DB_PATH = path.join('/tmp', 'profiles.json');
-
-// Função para ler o arquivo de perfis de forma segura.
-async function readProfiles() {
-    try {
-        await fs.access(PROFILES_DB_PATH);
-        const data = await fs.readFile(PROFILES_DB_PATH, 'utf8');
-        return JSON.parse(data);
-    } catch (error) {
-        // Se o arquivo não existir ou estiver corrompido, retorna um objeto vazio.
-        return {};
-    }
+// --- INÍCIO: INICIALIZAÇÃO DO FIREBASE ---
+// Garante que o SDK do Firebase seja inicializado apenas uma vez.
+if (!admin.apps.length) {
+  try {
+    // As credenciais são lidas da variável de ambiente configurada na Vercel.
+    const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_JSON);
+    admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount)
+    });
+  } catch (error) {
+    console.error('Erro na inicialização do Firebase Admin:', error.message);
+  }
 }
 
-// Função para escrever no arquivo de perfis.
-async function writeProfiles(data) {
-    await fs.writeFile(PROFILES_DB_PATH, JSON.stringify(data, null, 2), 'utf8');
-}
+// Referência para o banco de dados Firestore.
+const db = admin.firestore();
+const profilesCollection = db.collection('profiles');
+// --- FIM: INICIALIZAÇÃO DO FIREBASE ---
 
 export default async function handler(request, response) {
     if (request.method !== 'POST') {
@@ -34,19 +31,21 @@ export default async function handler(request, response) {
         if (!ra) {
             return response.status(400).json({ success: false, message: 'RA é obrigatório.' });
         }
+        
+        // Busca o documento do usuário diretamente no Firestore.
+        const userProfileRef = profilesCollection.doc(ra);
+        const userProfileDoc = await userProfileRef.get();
+        const existingProfile = userProfileDoc.exists ? userProfileDoc.data() : {};
 
-        const profiles = await readProfiles();
-        const existingProfile = profiles[ra] || {};
-
-        // REMOVIDO: Nunca salve senhas no seu banco de dados.
+        // Remove a senha para nunca salvá-la no banco.
         if (profileDataFromClient.password) {
             delete profileDataFromClient.password;
         }
 
-        // NOVO: Lógica para restaurar a sessão sem precisar de login
+        // Lógica para restaurar a sessão.
         if (isSessionCheck) {
-            if (existingProfile.ra) {
-                console.log(`[AUTH API] Sessão restaurada para o RA: ${ra}`);
+            if (userProfileDoc.exists) {
+                console.log(`[AUTH API] Sessão restaurada para o RA: ${ra} via Firestore.`);
                 return response.status(200).json({ success: true, profile: existingProfile });
             } else {
                 return response.status(404).json({ success: false, message: 'Perfil não encontrado para a sessão ativa.' });
@@ -55,16 +54,14 @@ export default async function handler(request, response) {
         
         let finalProfile;
 
-        // LÓGICA DE MERGE CORRIGIDA
+        // Lógica de merge corrigida.
         if (isLoginEvent) {
-            // Durante o login, os dados do cliente (vindos da SED) atualizam o perfil,
-            // mas os dados existentes (personalizados pelo usuário, como 'name' e 'profilePic') têm prioridade.
             finalProfile = {
                 ...profileDataFromClient, // Aplica os dados novos (email, etc.)
                 ...existingProfile,       // Sobrescreve com os dados já salvos (nome/foto personalizados)
             };
         } else {
-            // Lógica de edição de perfil: simplesmente mescla as novas alterações.
+            // Lógica de edição de perfil.
             finalProfile = {
                 ...existingProfile,
                 ...profileDataFromClient
@@ -73,10 +70,10 @@ export default async function handler(request, response) {
 
         finalProfile.ra = ra; // Garante que o RA esteja sempre presente.
 
-        profiles[ra] = finalProfile;
-        await writeProfiles(profiles);
+        // Salva o perfil no Firestore.
+        await userProfileRef.set(finalProfile, { merge: true });
 
-        console.log(`[AUTH API] Perfil salvo para o RA: ${ra}`);
+        console.log(`[AUTH API] Perfil salvo no Firestore para o RA: ${ra}`);
         return response.status(200).json({
             success: true,
             message: 'Perfil salvo com sucesso.',
