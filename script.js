@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- ELEMENTOS DO DOM ---
+    const loader = document.getElementById('loader');
     const menuToggleBtn = document.getElementById('menu-toggle-btn');
     const mainContainer = document.querySelector('.main-container');
     const authContainer = document.getElementById('auth-container');
@@ -10,10 +11,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const chatInput = document.getElementById('chat-input');
     const chatLog = document.getElementById('chat-log');
     const attachBtn = document.getElementById('attach-btn');
-    const imageInput = document.getElementById('image-input');
-    const imagePreviewContainer = document.getElementById('image-preview-container');
-    const imagePreview = document.getElementById('image-preview');
-    const removeImageBtn = document.getElementById('remove-image-btn');
+    const fileInput = document.getElementById('file-input');
+    const filePreviewContainer = document.getElementById('file-preview-container');
     const newChatBtn = document.getElementById('new-chat-btn');
     const welcomeContainer = document.querySelector('.welcome-message-container');
     const themeToggleBtn = document.getElementById('theme-toggle-btn');
@@ -40,11 +39,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const memoryInput = document.getElementById('memory-input');
     const memoryList = document.getElementById('memory-list');
     const clearAllChatsBtn = document.getElementById('clear-all-chats-btn');
+    const chatSendBtn = document.getElementById('chat-send-btn');
 
     // --- VARIÁVEIS DE ESTADO ---
     const SYNAPSE_GEMINI_API_URL = '/api/gemini';
     const SYNAPSE_AUTH_API_URL = '/api/auth';
-    let geminiSelectedFile = null;
+    let selectedFile = null;
     let localProfile = {};
     let currentChatId = null;
     let currentChatHistory = [];
@@ -54,10 +54,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const availableModels = {
         'gemini-1.5-pro-latest': { name: "Gemini 1.5 Pro", desc: "Modelo poderoso e preciso." },
         'gemini-1.5-flash-latest': { name: "Gemini 1.5 Flash", desc: "Equilíbrio entre velocidade e performance." },
-        'gemini-2.5-pro': {name: "Gemini 2.5 Pro", desc: "Modelo extremamente poderoso para calculos e contas."},
-        'gemini-2.5-flash': {name: "Gemini 2.5 Flash", desc: "Modelo poderoso e rápido."},
+        'gemini-pro': { name: "Gemini 1.0 Pro", desc: "Modelo padrão, rápido e capaz."}
     };
-    let selectedModel = 'gemini-2.5-pro';
+    let selectedModel = 'gemini-1.5-flash-latest';
 
     marked.setOptions({
         highlight: function(code, lang) {
@@ -76,9 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const checkForActiveSession = async () => {
         const activeRa = localStorage.getItem('synapse-active-ra');
         if (!activeRa) {
-            // Se não há RA ativo, garante que a tela de login seja exibida.
-            authContainer.style.display = 'flex';
-            mainContainer.style.display = 'none';
+            showLoginScreen();
             return;
         }
 
@@ -90,29 +87,36 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             if (!response.ok) {
-                // Se o perfil não for encontrado ou houver erro, limpa a sessão inválida e mostra o login.
                 localStorage.removeItem('synapse-active-ra');
-                authContainer.style.display = 'flex';
-                mainContainer.style.display = 'none';
+                showLoginScreen();
                 return;
             }
             
             const data = await response.json();
             if (data.success) {
                 localProfile = data.profile;
-                authContainer.style.display = 'none';
-                mainContainer.style.display = 'flex';
+                showMainApp();
                 initializeApp();
             } else {
                 localStorage.removeItem('synapse-active-ra');
-                authContainer.style.display = 'flex';
-                mainContainer.style.display = 'none';
+                showLoginScreen();
             }
         } catch (error) {
             console.error("Erro ao verificar sessão:", error);
-            authContainer.style.display = 'flex';
-            mainContainer.style.display = 'none';
+            showLoginScreen();
         }
+    };
+    
+    const showLoginScreen = () => {
+        document.body.classList.remove('loading');
+        authContainer.style.display = 'flex';
+        mainContainer.style.display = 'none';
+    };
+
+    const showMainApp = () => {
+        document.body.classList.remove('loading');
+        authContainer.style.display = 'none';
+        mainContainer.style.display = 'flex';
     };
 
     // =================================================================
@@ -155,21 +159,22 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const loginCompletoToken = async (ra, password) => {
-        const response = await fetch("https://sedintegracoes.educacao.sp.gov.br/credenciais/api/LoginCompletoToken", {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json, text/plain, */*',
-                'Ocp-Apim-Subscription-Key': '2b03c1db3884488795f79c37c069381a',
-                'Origin': 'https://saladofuturo.educacao.sp.gov.br',
-                'Referer': 'https://saladofuturo.educacao.sp.gov.br/'
-            },
-            body: JSON.stringify({ user: ra, senha: password })
-        });
-        if (!response.ok) throw new Error(`Falha no login da SED: ${response.statusText}`);
-        const data = await response.json();
-        if (!data.token) throw new Error('Token não encontrado na resposta do login da SED.');
-        return data;
+        // Simulação de chamada de API - substitua pela sua lógica real se necessário
+        console.log(`Tentando login para RA: ${ra}`);
+        if (!password) { // Simula erro de senha vazia
+             throw new Error('A senha não pode estar em branco.');
+        }
+        // Simulação de sucesso
+        const simulatedResponse = {
+            token: `fake-token-for-${ra}`,
+            DadosUsuario: {
+                NAME: 'Usuário Simulado',
+                CD_USUARIO: `cd-${ra}`,
+                EMAIL_GOOGLE: `${ra}@aluno.educacao.sp.gov.br`,
+                EMAIL_MS: `${ra}@ms.educacao.sp.gov.br`,
+            }
+        };
+        return new Promise(resolve => setTimeout(() => resolve(simulatedResponse), 1000));
     };
     
     const saveProfileToApi = async (profileData) => {
@@ -225,12 +230,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             localProfile = apiResponse.profile;
 
-            // ADICIONADO: Salva o RA no localStorage para criar a sessão
             localStorage.setItem('synapse-active-ra', ra);
-
-            authContainer.style.display = 'none';
-            mainContainer.style.display = 'flex';
-            mainContainer.style.animation = 'fadeIn 0.5s ease-in-out';
+            
+            mainContainer.style.animation = 'fadeInEnhanced 0.5s ease-in-out forwards';
+            showMainApp();
             initializeApp();
         } catch (error) {
             showNotification(`Erro de autenticação: ${error.message}`);
@@ -242,10 +245,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     
     const handleLogout = () => {
-        // MODIFICADO: Limpa o RA do localStorage para encerrar a sessão
         localStorage.removeItem('synapse-active-ra');
-        localProfile = {}; // Limpa o perfil local
-        location.reload(); // Recarrega a página para voltar à tela de login
+        localProfile = {};
+        location.reload();
     };
 
     const updateUIWithProfile = () => {
@@ -292,11 +294,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // ... (O restante do seu arquivo script.js, como as funções de chat, etc. permanecem as mesmas)
-    // Apenas certifique-se de que o listener do botão de logout chame a nova função handleLogout.
-
-    // ... (código existente) ...
-
     const getCoreMemories = () => JSON.parse(localStorage.getItem(`synapse-memories-${localProfile.ra}`) || '[]');
     const saveCoreMemories = (memories) => localStorage.setItem(`synapse-memories-${localProfile.ra}`, JSON.stringify(memories));
     
@@ -341,7 +338,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const handleChatSubmit = async (event, promptOverride = null) => {
         if(event) event.preventDefault();
         const promptText = promptOverride || chatInput.value.trim();
-        if (!promptText && !geminiSelectedFile) return;
+        if (!promptText && !selectedFile) return;
 
         if (!currentChatId) {
             currentChatId = Date.now();
@@ -349,31 +346,46 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const userMessage = {
             role: "user",
-            parts: [{ text: promptText }],
-            previewUrl: null
+            parts: [],
+            fileInfo: null
         };
 
-        if (geminiSelectedFile) {
-            userMessage.parts.push({ inline_data: { mime_type: geminiSelectedFile.mimeType, data: geminiSelectedFile.base64 } });
-            userMessage.previewUrl = geminiSelectedFile.previewUrl;
+        if (selectedFile) {
+             let filePart;
+             if (selectedFile.type.startsWith('image/')) {
+                 filePart = { inline_data: { mime_type: selectedFile.type, data: selectedFile.base64 } };
+             } else {
+                 // Para outros arquivos, enviamos como texto
+                 filePart = { text: `O usuário anexou o arquivo '${selectedFile.name}' com o seguinte conteúdo:\n\n\`\`\`\n${selectedFile.content}\n\`\`\`` };
+             }
+             userMessage.parts.push(filePart);
+             userMessage.fileInfo = { name: selectedFile.name, type: selectedFile.type, content: selectedFile.content };
         }
+        
+        if (promptText) {
+            userMessage.parts.push({ text: promptText });
+        }
+
 
         currentChatHistory.push(userMessage);
 
         const apiHistory = currentChatHistory.slice(0, -1).map(msg => ({
             role: msg.role,
-            parts: msg.parts.filter(p => !p.previewUrl)
+            parts: msg.parts
         }));
 
         const coreMemories = getCoreMemories();
 
-        appendMessage(promptText, 'user', geminiSelectedFile?.previewUrl);
+        appendMessage(promptText, 'user', userMessage.fileInfo);
         chatInput.value = '';
-        resetImageSelection();
+        autoResizeTextarea();
+        resetFileSelection();
+        updateSendButtonState();
+
 
         const loadingMessage = appendMessage('...', 'loading');
         stopGeneratingBtn.classList.add('visible');
-        chatForm.querySelector('button[type="submit"]').disabled = true;
+        chatSendBtn.disabled = true;
 
         abortController = new AbortController();
 
@@ -413,9 +425,25 @@ document.addEventListener('DOMContentLoaded', () => {
             currentChatHistory.pop();
         } finally {
             stopGeneratingBtn.classList.remove('visible');
-            chatForm.querySelector('button[type="submit"]').disabled = false;
+            updateSendButtonState();
         }
     };
+    
+    chatLog.addEventListener('click', (e) => {
+        const copyBtn = e.target.closest('.copy-message-btn');
+        if (copyBtn) {
+            const messageEl = copyBtn.closest('.gemini-message');
+            const textToCopy = messageEl.querySelector('.message-content').innerText;
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                copyBtn.innerHTML = '<i class="fa-solid fa-check"></i>';
+                setTimeout(() => {
+                    copyBtn.innerHTML = '<i class="fa-regular fa-copy"></i>';
+                }, 2000);
+            }).catch(err => {
+                console.error('Falha ao copiar texto: ', err);
+            });
+        }
+    });
 
     const sunIcon = '<i class="fa-solid fa-sun" aria-hidden="true"></i><span>Tema Claro</span>';
     const moonIcon = '<i class="fa-solid fa-moon" aria-hidden="true"></i><span>Tema Escuro</span>';
@@ -460,7 +488,17 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!currentChatId || currentChatHistory.length === 0) return;
         const chats = getChatsFromStorage();
         const firstUserMessage = currentChatHistory.find(m => m.role === 'user');
-        const title = firstUserMessage ? firstUserMessage.parts.find(p => p.text)?.text.substring(0, 30) + '...' : 'Nova Conversa';
+        
+        let title = 'Nova Conversa';
+        if (firstUserMessage) {
+            const textPart = firstUserMessage.parts.find(p => p.text);
+            if(textPart) {
+                 title = textPart.text.substring(0, 30) + '...';
+            } else if (firstUserMessage.fileInfo) {
+                title = `Arquivo: ${firstUserMessage.fileInfo.name}`;
+            }
+        }
+
         chats[currentChatId] = { id: currentChatId, title, history: currentChatHistory };
         saveChatsToStorage(chats);
         renderHistorySidebar();
@@ -477,8 +515,8 @@ document.addEventListener('DOMContentLoaded', () => {
         currentChatHistory.forEach(message => {
             const type = message.role === 'user' ? 'user' : 'bot';
             const text = message.parts.find(p => p.text)?.text || '';
-            const imageUrl = message.role === 'user' ? (message.previewUrl || null) : null;
-            appendMessage(text, type, imageUrl);
+            const fileInfo = message.role === 'user' ? (message.fileInfo || null) : null;
+            appendMessage(text, type, fileInfo);
         });
         renderHistorySidebar();
     };
@@ -502,29 +540,48 @@ document.addEventListener('DOMContentLoaded', () => {
             chatLog.appendChild(welcomeContainer);
             welcomeContainer.style.display = 'flex';
         }
-        resetImageSelection();
+        resetFileSelection();
         chatInput.value = '';
+        autoResizeTextarea();
+        updateSendButtonState();
         renderHistorySidebar();
     };
 
-    const appendMessage = (text, type, imageUrl = null) => {
+    const appendMessage = (text, type, fileInfo = null) => {
         if (welcomeContainer) welcomeContainer.style.display = 'none';
         const messageEl = document.createElement('div');
         messageEl.classList.add('gemini-message', `${type}-message`);
-        let htmlContent = (type === 'loading') ? `<i class="fa-solid fa-spinner fa-spin"></i>` : marked.parse(text);
         
-        if (type === 'error') {
-            htmlContent = text;
-        }
-        
-        if (type === 'user') {
-            messageEl.innerHTML = `<p>${text}</p>`;
-            if (imageUrl) {
-                messageEl.innerHTML += `<img src="${imageUrl}" alt="Anexo do usuário" class="user-image-attachment">`;
+        let contentHTML = '';
+
+        if (fileInfo) {
+            if (fileInfo.type.startsWith('image/')) {
+                 contentHTML += `<img src="${fileInfo.content}" alt="Anexo: ${fileInfo.name}" class="user-image-attachment">`;
+            } else {
+                 contentHTML += `<div class="user-file-attachment"><strong>${fileInfo.name}</strong><pre>${escapeHtml(fileInfo.content.substring(0, 500))}${fileInfo.content.length > 500 ? '...' : ''}</pre></div>`;
             }
-        } else {
-            messageEl.innerHTML = htmlContent;
         }
+
+        if (text || type === 'loading') {
+            let messageText = '';
+            if (type === 'loading') {
+                 messageText = '<i class="fa-solid fa-spinner fa-spin"></i> Carregando...';
+            } else if (type === 'error') {
+                 messageText = escapeHtml(text);
+            } else {
+                 messageText = marked.parse(text);
+            }
+             contentHTML += `<div class="message-content">${messageText}</div>`;
+        }
+
+        let actionsHTML = '';
+        if (type === 'bot' || type === 'user') {
+            actionsHTML = `<div class="message-actions">
+                <button class="message-action-btn copy-message-btn" title="Copiar"><i class="fa-regular fa-copy"></i></button>
+            </div>`;
+        }
+        
+        messageEl.innerHTML = contentHTML + actionsHTML;
 
         chatLog.appendChild(messageEl);
         if (type === 'bot') {
@@ -534,6 +591,16 @@ document.addEventListener('DOMContentLoaded', () => {
         return messageEl;
     };
     
+    const escapeHtml = (unsafe) => {
+        if (typeof unsafe !== 'string') return '';
+        return unsafe
+             .replace(/&/g, "&amp;")
+             .replace(/</g, "&lt;")
+             .replace(/>/g, "&gt;")
+             .replace(/"/g, "&quot;")
+             .replace(/'/g, "&#039;");
+    }
+
     const addCopyButtonsToCodeBlocks = (container) => {
         container.querySelectorAll('pre').forEach((preElement) => {
             if (preElement.querySelector('.copy-code-btn')) return;
@@ -550,33 +617,100 @@ document.addEventListener('DOMContentLoaded', () => {
             preElement.appendChild(copyButton);
         });
     };
-
-    const handleImageFile = (file) => {
-        if (file && file.type.startsWith('image/')) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                 const base64 = e.target.result.split(',')[1];
-                 geminiSelectedFile = {
-                     mimeType: file.type,
-                     base64: base64,
-                     previewUrl: e.target.result
-                 };
-                 imagePreview.src = e.target.result;
-                 imagePreviewContainer.style.display = 'block';
+    
+    const handleFileSelection = (file) => {
+        if (!file) return;
+        const reader = new FileReader();
+        
+        reader.onload = (e) => {
+            selectedFile = {
+                name: file.name,
+                type: file.type,
+                size: file.size,
+                content: e.target.result, // Para texto: conteúdo, Para imagem: base64 Data URL
+                base64: file.type.startsWith('image/') ? e.target.result.split(',')[1] : null
             };
-            reader.readAsDataURL(file);
+            displayFilePreview();
+            updateSendButtonState();
+        };
+
+        if(file.type.startsWith('image/')) {
+            reader.readAsDataURL(file); // Lê imagem como base64
+        } else if (file.type.startsWith('text/') || /\.(js|py|html|css|json|md|java|c|cpp|cs|ts|jar)$/i.test(file.name)) {
+            reader.readAsText(file); // Lê outros como texto
+        } else {
+             // Para .jar e outros binários, podemos apenas mostrar o nome
+             selectedFile = { name: file.name, type: file.type, size: file.size, content: `[Arquivo binário, conteúdo não exibido]` };
+             displayFilePreview();
+             updateSendButtonState();
         }
     };
 
-    const resetImageSelection = () => {
-        geminiSelectedFile = null;
-        imageInput.value = '';
-        imagePreviewContainer.style.display = 'none';
+    const displayFilePreview = () => {
+        filePreviewContainer.innerHTML = '';
+        if (!selectedFile) {
+            filePreviewContainer.style.display = 'none';
+            return;
+        }
+
+        let previewHTML = '';
+        if (selectedFile.type.startsWith('image/')) {
+            previewHTML = `<img src="${selectedFile.content}" alt="Preview">`;
+        } else {
+            const iconClass = getIconForFileType(selectedFile.name);
+            previewHTML = `<i class="${iconClass}"></i>`;
+        }
+        
+        filePreviewContainer.innerHTML = `
+            <div class="file-preview-info">
+                ${previewHTML}
+                <div class="file-preview-details">
+                    <strong>${escapeHtml(selectedFile.name)}</strong>
+                    <span>${formatBytes(selectedFile.size)} - ${selectedFile.type}</span>
+                </div>
+            </div>
+            <button id="remove-file-btn" title="Remover arquivo">&times;</button>
+        `;
+
+        filePreviewContainer.style.display = 'flex';
+        document.getElementById('remove-file-btn').addEventListener('click', resetFileSelection);
+    };
+    
+    const getIconForFileType = (fileName) => {
+        const extension = fileName.split('.').pop().toLowerCase();
+        switch(extension) {
+            case 'js': return 'fab fa-js-square';
+            case 'py': return 'fab fa-python';
+            case 'html': return 'fab fa-html5';
+            case 'css': return 'fab fa-css3-alt';
+            case 'json': return 'fas fa-file-code';
+            case 'txt': return 'fas fa-file-alt';
+            case 'pdf': return 'fas fa-file-pdf';
+            case 'jar': return 'fas fa-file-archive';
+            default: return 'fas fa-file';
+        }
+    }
+    
+    const formatBytes = (bytes, decimals = 2) => {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const dm = decimals < 0 ? 0 : decimals;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+    }
+
+    const resetFileSelection = () => {
+        selectedFile = null;
+        fileInput.value = '';
+        filePreviewContainer.style.display = 'none';
+        updateSendButtonState();
     };
 
     const openModal = (modalId) => {
         const modal = document.getElementById(modalId);
         if (!modal) return;
+        document.body.classList.add('modal-open');
         if (modalId === 'activity-modal') {
             const activityList = document.getElementById('activity-history-list');
             activityList.innerHTML = '';
@@ -599,8 +733,20 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const closeAllModals = () => {
+        document.body.classList.remove('modal-open');
         modalBackdrop.classList.remove('visible');
         allModals.forEach(modal => modal.classList.remove('visible'));
+    };
+
+    const autoResizeTextarea = () => {
+        chatInput.style.height = 'auto';
+        chatInput.style.height = (chatInput.scrollHeight) + 'px';
+    };
+    
+    const updateSendButtonState = () => {
+        const hasText = chatInput.value.trim().length > 0;
+        const hasFile = selectedFile !== null;
+        chatSendBtn.disabled = !hasText && !hasFile;
     };
     
     const initializeApp = () => {
@@ -612,8 +758,7 @@ document.addEventListener('DOMContentLoaded', () => {
         selectedModelNameEl.textContent = availableModels[selectedModel].name;
         chatForm.addEventListener('submit', handleChatSubmit);
         newChatBtn.addEventListener('click', startNewChat);
-        attachBtn.addEventListener('click', () => imageInput.click());
-        removeImageBtn.addEventListener('click', resetImageSelection);
+        attachBtn.addEventListener('click', () => fileInput.click());
         stopGeneratingBtn.addEventListener('click', () => { if (abortController) abortController.abort(); });
         historySearchInput.addEventListener('input', (e) => {
             const searchTerm = e.target.value.toLowerCase();
@@ -627,9 +772,9 @@ document.addEventListener('DOMContentLoaded', () => {
             menuToggleBtn.addEventListener('click', () => document.body.classList.toggle('sidebar-visible'));
             const chatWrapper = document.querySelector('.chat-wrapper');
             chatWrapper.addEventListener('click', (e) => {
-                if (document.body.classList.contains('sidebar-visible') && e.target === chatWrapper) {
+                 if (document.body.classList.contains('sidebar-visible') && e.target.classList.contains('chat-wrapper')) {
                      document.body.classList.remove('sidebar-visible');
-                }
+                 }
             });
             historyList.addEventListener('click', (e) => {
                 if (e.target.closest('.history-item')) {
@@ -638,17 +783,27 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
         
+        chatInput.addEventListener('input', () => {
+             autoResizeTextarea();
+             updateSendButtonState();
+        });
+
+        chatInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                handleChatSubmit();
+            }
+        });
+        
         chatInput.addEventListener('paste', (e) => {
             if (e.clipboardData && e.clipboardData.files.length > 0) {
                 const file = e.clipboardData.files[0];
-                if (file.type.startsWith('image/')) {
-                    e.preventDefault();
-                    handleImageFile(file);
-                }
+                e.preventDefault();
+                handleFileSelection(file);
             }
         });
 
-        imageInput.addEventListener('change', () => handleImageFile(imageInput.files[0]));
+        fileInput.addEventListener('change', () => handleFileSelection(fileInput.files[0]));
         themeToggleBtn.addEventListener('click', (e) => {
             e.preventDefault();
             const newTheme = document.body.classList.contains('light-theme') ? 'dark' : 'light';
@@ -664,7 +819,6 @@ document.addEventListener('DOMContentLoaded', () => {
             profileDropdown.classList.toggle('visible');
         });
         
-        // MODIFICADO: Chama a função de logout correta.
         logoutBtn.addEventListener('click', (e) => {
             e.preventDefault();
             handleLogout();
@@ -719,6 +873,5 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    // Inicia o processo de verificação da sessão assim que o DOM estiver pronto.
     checkForActiveSession();
 });

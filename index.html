@@ -10,9 +10,14 @@
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
 </head>
-<body>
+<body class="loading">
 
-    <div id="auth-container">
+    <div id="loader">
+        <div class="spinner"></div>
+        <p>Carregando Synapse IA...</p>
+    </div>
+
+    <div id="auth-container" style="display: none;">
         <div class="wave-container">
             <div class="wave wave-top"></div>
             <div class="wave wave1"></div>
@@ -27,7 +32,7 @@
                     <h2 style="font-size: 1.2rem; margin-top: 1.5rem; margin-bottom: 1rem; color: var(--text-primary);">O que você pode fazer:</h2>
                     <ul>
                         <li><i class="fa-solid fa-check-circle"></i> <div><strong>Resolver Dúvidas:</strong> Faça perguntas complexas e receba respostas detalhadas e precisas.</div></li>
-                        <li><i class="fa-solid fa-file-lines"></i> <div><strong>Analisar Tarefas:</strong> Envie imagens de suas tarefas e obtenha ajuda para resolvê-las.</div></li>
+                        <li><i class="fa-solid fa-file-lines"></i> <div><strong>Analisar Tarefas e Arquivos:</strong> Envie imagens ou arquivos de texto (.txt, .js, etc.) e obtenha ajuda.</div></li>
                         <li><i class="fa-solid fa-shield-halved"></i> <div><strong>Segurança e Foco:</strong> Suas conversas são privadas e o ambiente é focado em produtividade acadêmica.</div></li>
                     </ul>
                 </div>
@@ -155,15 +160,13 @@
             </main>
 
             <div class="chat-input-container">
-                <div id="image-preview-container" style="display: none;">
-                    <img id="image-preview" src="#" alt="Image preview"/>
-                    <button id="remove-image-btn" aria-label="Remover imagem"><i class="fa-solid fa-times" aria-hidden="true"></i></button>
-                </div>
+                <div id="file-preview-container" class="file-preview-container" style="display: none;">
+                    </div>
                 <form id="chat-form" aria-label="Formulário de chat">
                     <div class="input-wrapper">
-                        <input type="file" id="image-input" accept="image/*" style="display: none;" aria-hidden="true">
-                        <input type="text" id="chat-input" placeholder="Peça ao Synapse IA..." autocomplete="off" aria-label="Digite sua pergunta">
-                        <button type="button" id="attach-btn" class="chat-icon-btn" title="Anexar Imagem" aria-label="Anexar Imagem">
+                        <input type="file" id="file-input" accept="image/*,text/plain,.js,.py,.html,.css,.json,.md,.java,.c,.cpp,.cs,.ts,.jar" style="display: none;" aria-hidden="true">
+                        <textarea id="chat-input" placeholder="Peça ao Synapse IA..." autocomplete="off" aria-label="Digite sua pergunta" rows="1"></textarea>
+                        <button type="button" id="attach-btn" class="chat-icon-btn" title="Anexar Arquivo" aria-label="Anexar Arquivo">
                             <i class="fa-solid fa-paperclip" aria-hidden="true"></i>
                         </button>
                         <button type="submit" id="chat-send-btn" class="chat-icon-btn" title="Enviar Mensagem" aria-label="Enviar Mensagem">
@@ -192,7 +195,7 @@
     </div>
     <div class="modal" id="help-modal">
         <div class="modal-header"><h2>Ajuda</h2><button class="close-modal-btn">&times;</button></div>
-        <div class="modal-body"><h3>Bem-vindo ao Synapse IA!</h3><p>Eu sou seu assistente pessoal para estudos. Você pode me pedir para:</p><ul><li>Explicar tópicos complexos.</li><li>Resumir textos ou artigos.</li><li>E muito mais!</li></ul></div>
+        <div class="modal-body"><h3>Bem-vindo ao Synapse IA!</h3><p>Eu sou seu assistente pessoal para estudos. Você pode me pedir para:</p><ul><li>Explicar tópicos complexos.</li><li>Resumir textos ou artigos.</li><li>Analisar imagens e arquivos de código.</li><li>E muito mais!</li></ul></div>
     </div>
     <div class="modal" id="activity-modal">
         <div class="modal-header"><h2>Sua Atividade</h2><button class="close-modal-btn">&times;</button></div>
