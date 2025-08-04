@@ -52,11 +52,14 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // --- LÓGICA DE SELEÇÃO DE MODELO ---
     const availableModels = {
-        'gemini-1.5-pro-latest': { name: "Gemini 1.5 Pro", desc: "Modelo poderoso e preciso." },
-        'gemini-1.5-flash-latest': { name: "Gemini 1.5 Flash", desc: "Equilíbrio entre velocidade e performance." },
-        'gemini-pro': { name: "Gemini 1.0 Pro", desc: "Modelo padrão, rápido e capaz."}
+        'gemini-2.5-pro': { name: "Gemini 2.5 Pro", desc: "Futuro modelo de ponta." },
+        'gemini-2.5-flash': { name: "Gemini 2.5 Flash", desc: "Futuro modelo rápido e eficiente." },
+        'gemini-1.5-pro-latest': { name: "Gemini 1.5 Pro", desc: "O modelo mais poderoso e preciso." },
+        'gemini-1.5-flash-latest': { name: "Gemini 1.5 Flash", desc: "Equilíbrio ideal de velocidade e performance." },
     };
-    let selectedModel = 'gemini-1.5-flash-latest';
+    // Define o modelo mais avançado disponível como padrão inicial
+    let selectedModel = 'gemini-2.5-pro';
+
 
     marked.setOptions({
         highlight: function(code, lang) {
