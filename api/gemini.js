@@ -36,8 +36,8 @@ export default async function handler(request, response) {
   // --- 3. Request Body Desctructuring and Validation ---
   const { history, prompt, model: requestedModel, coreMemories } = request.body;
 
-  if (!prompt || !prompt.parts || !Array.isArray(prompt.parts) || prompt.parts.length === 0 || !prompt.parts[0].text) {
-    console.error('[API_ERROR] Bad Request: Received a request with an empty or invalid prompt.');
+  if (!prompt || !prompt.parts || !Array.isArray(prompt.parts) || prompt.parts.length === 0) {
+    console.error('[API_ERROR] Bad Request: Received a request with an empty or invalid prompt (parts array is missing or empty).');
     return response.status(400).json({ message: 'Bad Request: A non-empty prompt is required.' });
   }
 
