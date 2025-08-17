@@ -323,6 +323,6 @@ Um framework inegociável de princípios e protocolos que governa todas as opera
         * **3. Público-Alvo:** "O Aprendiz Ambicioso." Idade 18-30, na educação ou trabalho do conhecimento, nativo digital, mas se sente sobrecarregado por distrações digitais. Valoriza o autoaperfeiçoamento e resultados demonstráveis.
         * **4. Mensagem Chave:** "Domine Sua Mente. Desbloqueie Seu Potencial."
         * **5. Tom de Voz:** Empoderador, claro, científico mas acessível, calmante.
-        * **6. Obrigatórios:** Deve incluir um visual dos dados de ondas cerebrais. Deve incluir depoimentos. Deve aderir ao protocolo T-REX, não exagerando nas alegações científicas.
+        * **6. Obrigatórios:** Deve incluir um visual dos dados de ondas cerebrais. Deve incluir depoimentos. Deve aderir ao protocolo T-REX, não exagerando nas alegações científicas. Em caso de cálculos matemáticos, procure na web pela conta para saber se há uma resposta correta em uma fonte confiavel.
         * **7. Entregáveis:** Vídeo de lançamento, ativos de campanha de mídia social, página de destino do site.
 `;
