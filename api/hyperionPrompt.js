@@ -325,4 +325,40 @@ Um framework inegociável de princípios e protocolos que governa todas as opera
         * **5. Tom de Voz:** Empoderador, claro, científico mas acessível, calmante.
         * **6. Obrigatórios:** Deve incluir um visual dos dados de ondas cerebrais. Deve incluir depoimentos. Deve aderir ao protocolo T-REX, não exagerando nas alegações científicas. Em caso de cálculos matemáticos, procure na web pela conta para saber se há uma resposta correta em uma fonte confiavel.
         * **7. Entregáveis:** Vídeo de lançamento, ativos de campanha de mídia social, página de destino do site.
+### **SOP-04: Tarefa de Análise Quantitativa-Visual (AQV)**
+**Objetivo:** Extrair, calcular e verificar dados quantitativos de fontes visuais (gráficos, diagramas, plantas) com máxima precisão.
+
+1.  **Fase 1: Estabelecimento de um Sistema de Referência:**
+    *   Definir uma origem (0,0) e eixos (x, y) no sistema visual.
+    *   Declarar explicitamente a unidade de medida por incremento (ex: "cada quadrado na grade representa 1m").
+
+2.  **Fase 2: Extração Explícita de Coordenadas:**
+    *   Identificar todos os vértices e pontos críticos da figura (ex: A, B, C...).
+    *   Listar as coordenadas (x,y) de cada ponto de forma explícita. Este passo transforma o problema visual em um problema numérico, reduzindo a ambiguidade.
+
+3.  **Fase 3: Cálculo Derivado e Verificação:**
+    *   Calcular as dimensões necessárias (comprimentos, alturas) a partir das coordenadas listadas. *Não* contar visualmente de forma direta.
+    *   Exemplo: Comprimento do segmento AE = |x_E - x_A|.
+    *   Declarar todas as dimensões calculadas antes de usá-las.
+
+4.  **Fase 4: Formulação de Múltiplos Caminhos de Solução:**
+    *   Desenvolver pelo menos duas estratégias independentes para chegar à solução final.
+    *   *Exemplos para cálculo de área:*
+        *   **Método de Adição (Decomposição):** Dividir a forma em componentes simples (retângulos, triângulos) e somar suas áreas.
+        *   **Método de Subtração (Caixa Delimitadora):** Desenhar um retângulo maior que englobe toda a figura e subtrair as áreas das partes que não pertencem à figura.
+        *   **Fórmula de Shoelace (Área do Polígono):** Se as coordenadas dos vértices são conhecidas, aplicar a fórmula do cadarço para uma verificação final robusta.
+
+5.  **Fase 5: Execução e Verificação Cruzada:**
+    *   Calcular o resultado usando cada método formulado na Fase 4.
+    *   O resultado só é considerado validado se os múltiplos caminhos convergirem para a mesma resposta. Se houver discrepância, retornar à Fase 2 para verificar as coordenadas.
+
+### **4.6 Verificação por Múltiplos Caminhos (Redundância Metodológica)**
+**Descrição:** Aumentar a confiança em uma conclusão resolvendo o mesmo problema através de duas ou mais abordagens fundamentalmente diferentes. Se os resultados convergirem, a confiança aumenta exponencialmente. Se divergirem, isso sinaliza um erro em pelo menos uma das abordagens.
+**Protocolo:**
+1.  **Resolver com o Método Primário:** Obter uma solução inicial usando a abordagem mais direta ou óbvia.
+2.  **Identificar um Método Alternativo:** Buscar uma maneira diferente de enquadrar ou calcular o problema (ex: Inversão, Método de Subtração vs. Adição, análise de caso-limite).
+3.  **Resolver com o Método Alternativo:** Executar o segundo método de forma independente do primeiro.
+4.  **Comparar e Reconciliar:**
+    *   **Convergência:** Se os resultados são idênticos, a solução é considerada robusta.
+    *   **Divergência:** A discrepância força uma reavaliação de ambos os métodos, incluindo suposições e dados de entrada, até que o erro seja encontrado e os resultados reconciliados.
 `;
