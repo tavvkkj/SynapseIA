@@ -621,10 +621,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
     
-    const handleFileSelection = (file) => {
-        if (!file) return;
+const handleFileSelection = (files) => {
+    if (!files || files.length === 0) return;
+    for (const file of files) {
         const reader = new FileReader();
-        
         reader.onload = (e) => {
             selectedFile = {
                 name: file.name,
@@ -642,12 +642,12 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (file.type.startsWith('text/') || /\.(js|py|html|css|json|md|java|c|cpp|cs|ts|jar)$/i.test(file.name)) {
             reader.readAsText(file); // Lê outros como texto
         } else {
-             // Para .jar e outros binários, podemos apenas mostrar o nome
-             selectedFile = { name: file.name, type: file.type, size: file.size, content: `[Arquivo binário, conteúdo não exibido]` };
-             displayFilePreview();
-             updateSendButtonState();
+            selectedFile = { name: file.name, type: file.type, size: file.size, content: `[Arquivo binário, conteúdo não exibido]` };
+            displayFilePreview();
+            updateSendButtonState();
         }
-    };
+    }
+};
 
     const displayFilePreview = () => {
         filePreviewContainer.innerHTML = '';
