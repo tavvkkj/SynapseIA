@@ -28,6 +28,11 @@ body.light-theme {
     --error-color: #d32f2f;
 }
 
+/* ADICIONE ESTA REGRA PARA ESCONDER O BOTÃO FEIO */
+#file-input {
+    display: none;
+}
+
 /* ======== TELA DE CARREGAMENTO ======== */
 #loader {
     position: fixed;
