@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const attachBtn = document.getElementById('attach-btn');
     const fileInput = document.getElementById('file-input');
     const filePreviewContainer = document.getElementById('file-preview-container');
+    const chatInputContainer = document.querySelector('.chat-input-container'); // Adicionado para drag and drop
     const newChatBtn = document.getElementById('new-chat-btn');
     const welcomeContainer = document.querySelector('.welcome-message-container');
     const themeToggleBtn = document.getElementById('theme-toggle-btn');
@@ -44,7 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- VARIÁVEIS DE ESTADO ---
     const SYNAPSE_GEMINI_API_URL = '/api/gemini';
     const SYNAPSE_AUTH_API_URL = '/api/auth';
-    let selectedFiles = []; // Alterado para um array
+    let selectedFiles = [];
     let localProfile = {};
     let currentChatId = null;
     let currentChatHistory = [];
@@ -57,9 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'gemini-1.5-pro-latest': { name: "Gemini 1.5 Pro", desc: "O modelo mais poderoso e preciso." },
         'gemini-1.5-flash-latest': { name: "Gemini 1.5 Flash", desc: "Equilíbrio ideal de velocidade e performance." },
     };
-    // Define o modelo mais avançado disponível como padrão inicial
     let selectedModel = 'gemini-2.5-pro';
-
 
     marked.setOptions({
         highlight: function(code, lang) {
@@ -81,20 +80,17 @@ document.addEventListener('DOMContentLoaded', () => {
             showLoginScreen();
             return;
         }
-
         try {
             const response = await fetch(SYNAPSE_AUTH_API_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ ra: activeRa, isSessionCheck: true })
             });
-
             if (!response.ok) {
                 localStorage.removeItem('synapse-active-ra');
                 showLoginScreen();
                 return;
             }
-            
             const data = await response.json();
             if (data.success) {
                 localProfile = data.profile;
@@ -123,7 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // =================================================================
-    // SEÇÃO: LÓGICA DE AUTENTICAÇÃO, PERFIL E AVATAR
+    // LÓGICA DE AUTENTICAÇÃO, PERFIL E AVATAR
     // =================================================================
 
     const showNotification = (message, type = 'error') => {
@@ -162,12 +158,10 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const loginCompletoToken = async (ra, password) => {
-        // Simulação de chamada de API - substitua pela sua lógica real se necessário
         console.log(`Tentando login para RA: ${ra}`);
-        if (!password) { // Simula erro de senha vazia
+        if (!password) {
              throw new Error('A senha não pode estar em branco.');
         }
-        // Simulação de sucesso
         const simulatedResponse = {
             token: `fake-token-for-${ra}`,
             DadosUsuario: {
@@ -232,9 +226,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error("Não foi possível salvar ou carregar o perfil do servidor.");
             }
             localProfile = apiResponse.profile;
-
             localStorage.setItem('synapse-active-ra', ra);
-            
             mainContainer.style.animation = 'fadeInEnhanced 0.5s ease-in-out forwards';
             showMainApp();
             initializeApp();
@@ -350,7 +342,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const userMessage = {
             role: "user",
             parts: [],
-            filesInfo: [] // Alterado para um array
+            filesInfo: []
         };
 
         if (selectedFiles.length > 0) {
@@ -370,7 +362,6 @@ document.addEventListener('DOMContentLoaded', () => {
             userMessage.parts.push({ text: promptText });
         }
 
-
         currentChatHistory.push(userMessage);
 
         const apiHistory = currentChatHistory.slice(0, -1).map(msg => ({
@@ -385,7 +376,6 @@ document.addEventListener('DOMContentLoaded', () => {
         autoResizeTextarea();
         resetFileSelection();
         updateSendButtonState();
-
 
         const loadingMessage = appendMessage('...', 'loading');
         stopGeneratingBtn.classList.add('visible');
@@ -823,6 +813,28 @@ document.addEventListener('DOMContentLoaded', () => {
                 handleFileSelection(e.clipboardData.files);
             }
         });
+
+        // --- LÓGICA DE DRAG AND DROP ---
+        chatInputContainer.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            chatInputContainer.classList.add('drag-over');
+        });
+
+        chatInputContainer.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            chatInputContainer.classList.remove('drag-over');
+        });
+
+        chatInputContainer.addEventListener('drop', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            chatInputContainer.classList.remove('drag-over');
+            const files = e.dataTransfer.files;
+            handleFileSelection(files);
+        });
+
 
         fileInput.addEventListener('change', () => handleFileSelection(fileInput.files));
         themeToggleBtn.addEventListener('click', (e) => {

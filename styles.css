@@ -28,7 +28,6 @@ body.light-theme {
     --error-color: #d32f2f;
 }
 
-/* ADICIONE ESTA REGRA PARA ESCONDER O BOTÃO FEIO */
 #file-input {
     display: none;
 }
@@ -113,10 +112,10 @@ body.light-theme #auth-container ::-webkit-scrollbar-track { background-color: #
 }
 
 .wave { position: absolute; bottom: 0; left: -50%; width: 200%; height: 300px; background-repeat: repeat-x; animation: wave-flow 45s linear infinite; }
-.wave.wave-top { top: -5px; bottom: auto; transform: rotate(180deg); background: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 88.7'%3e%3cpath d='M800 56.9c-155.5 0-204.9-50.6-400.8-50.6S155.6 56.9 0 56.9v31.8h800v-.2-31.6z' fill='%23080808'/%3e%3c/svg%3e"); opacity: 1; }
-.wave.wave1 { background: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 88.7'%3e%3cpath d='M800 56.9c-155.5 0-204.9-50.6-400.8-50.6S155.6 56.9 0 56.9v31.8h800v-.2-31.6z' fill='%231a1a1a'/%3e%3c/svg%3e"); bottom: 10px; opacity: 0.7; }
-.wave.wave2 { background: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 88.7'%3e%3cpath d='M800 56.9c-155.5 0-204.9-50.6-400.8-50.6S155.6 56.9 0 56.9v31.8h800v-.2-31.6z' fill='%23121212'/%3e%3c/svg%3e"); bottom: 5px; opacity: 0.8; }
-.wave.wave3 { background: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 88.7'%3e%3cpath d='M800 56.9c-155.5 0-204.9-50.6-400.8-50.6S155.6 56.9 0 56.9v31.8h800v-.2-31.6z' fill='%23080808'/%3e%3c/svg%3e"); bottom: 0; opacity: 1; }
+.wave.wave-top { top: -5px; bottom: auto; transform: rotate(180deg); background: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 88.7'%3e%3cpath d='M800 56.c-155.5 0-204.9-50.6-400.8-50.6S155.6 56.9 0 56.9v31.8h800v-.2-31.6z' fill='%23080808'/%3e%3c/svg%3e"); opacity: 1; }
+.wave.wave1 { background: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 88.7'%3e%3cpath d='M800 56.c-155.5 0-204.9-50.6-400.8-50.6S155.6 56.9 0 56.9v31.8h800v-.2-31.6z' fill='%231a1a1a'/%3e%3c/svg%3e"); bottom: 10px; opacity: 0.7; }
+.wave.wave2 { background: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 88.7'%3e%3cpath d='M800 56.c-155.5 0-204.9-50.6-400.8-50.6S155.6 56.9 0 56.9v31.8h800v-.2-31.6z' fill='%23121212'/%3e%3c/svg%3e"); bottom: 5px; opacity: 0.8; }
+.wave.wave3 { background: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 88.7'%3e%3cpath d='M800 56.c-155.5 0-204.9-50.6-400.8-50.6S155.6 56.9 0 56.9v31.8h800v-.2-31.6z' fill='%23080808'/%3e%3c/svg%3e"); bottom: 0; opacity: 1; }
 
 body.light-theme .wave { display: none; }
 
@@ -365,7 +364,6 @@ body.modal-open {
     flex-shrink: 0;
 }
 
-/* Esconde o botão do menu por padrão (visível em mobile) */
 #menu-toggle-btn {
     display: none;
 }
@@ -460,7 +458,14 @@ body.dark-theme .welcome-message h1 {
     background: var(--bg-primary);
     transition: background-color 0.3s ease;
     flex-shrink: 0;
+    border-radius: 12px;
 }
+
+.chat-input-container.drag-over {
+    border: 2px dashed var(--accent-color);
+    background-color: var(--bg-tertiary);
+}
+
 #chat-form .input-wrapper { display: flex; align-items: flex-end; background-color: var(--bg-tertiary); border-radius: 25px; padding: 8px; border: 1px solid var(--border-color); transition: var(--transition-fast); }
 #chat-form .input-wrapper:focus-within { box-shadow: 0 0 0 2px var(--text-secondary); border-color: var(--text-secondary); }
 
@@ -472,10 +477,10 @@ body.dark-theme .welcome-message h1 {
     color: var(--text-primary); 
     font-size: 1rem; 
     padding: 10px 15px; 
-    resize: none; /* Desabilita o redimensionamento manual */
-    max-height: 200px; /* Altura máxima para o textarea */
+    resize: none;
+    max-height: 200px;
     line-height: 1.5;
-    overflow-y: auto; /* Adiciona scroll quando necessário */
+    overflow-y: auto;
 }
 .chat-icon-btn { 
     background: transparent; 
@@ -536,7 +541,6 @@ body.light-theme #chat-send-btn:disabled { background-color: #e0e0e0; cursor: no
 
 .footer-info { text-align: center; font-size: 0.75rem; color: var(--text-secondary); margin-top: 1rem; }
 
-/* ======== ESTILOS DE PREVIEW DE ARQUIVO (ATUALIZADO) ======== */
 #file-preview-container {
     margin-bottom: 10px;
     background-color: var(--bg-tertiary);
@@ -564,7 +568,7 @@ body.light-theme #chat-send-btn:disabled { background-color: #e0e0e0; cursor: no
     display: flex;
     align-items: center;
     gap: 10px;
-    overflow: hidden; /* Garante que o nome não quebre o layout */
+    overflow: hidden;
 }
 .file-preview-info i {
     font-size: 1.5rem;
@@ -607,11 +611,9 @@ body.light-theme #chat-send-btn:disabled { background-color: #e0e0e0; cursor: no
     background-color: rgba(255, 68, 68, 0.1);
 }
 
-
-/* === ESTILOS DE MENSAGEM DE CHAT (ATUALIZADOS) === */
 .gemini-message {
     padding: 15px 22px;
-    border-radius: 20px; /* Bordas mais arredondadas para o efeito "bolha" */
+    border-radius: 20px;
     max-width: 90%;
     line-height: 1.6;
     word-wrap: break-word;
@@ -627,7 +629,7 @@ body.light-theme #chat-send-btn:disabled { background-color: #e0e0e0; cursor: no
     color: var(--bg-primary);
     align-self: flex-end;
     margin-left: auto;
-    border-bottom-right-radius: 6px; /* Achatado em um canto para parecer um balão de fala */
+    border-bottom-right-radius: 6px;
 }
 body.light-theme .user-message {
     color: var(--bg-secondary);
@@ -637,7 +639,7 @@ body.light-theme .user-message {
     background-color: var(--bg-tertiary);
     color: var(--text-primary);
     align-self: flex-start;
-    border-bottom-left-radius: 6px; /* Achatado em um canto para parecer um balão de fala */
+    border-bottom-left-radius: 6px;
 }
 
 .message-actions {
@@ -667,9 +669,8 @@ body.light-theme .user-message {
     background-color: var(--bg-tertiary);
 }
 
-/* NOVO: Estilos para elementos de texto formatados via Markdown */
 .bot-message strong {
-    font-weight: 600; /* Negrito um pouco mais sutil */
+    font-weight: 600;
     color: var(--text-primary);
 }
 
@@ -934,20 +935,16 @@ body.light-theme .bot-message pre {
     color: var(--error-color);
 }
 
-/* Adicionar no final do arquivo styles.css */
-
-/* Estilos do Menu Dropdown de Perfil */
 #profile-menu-container {
     position: relative;
 }
 
 #profile-dropdown {
-    top: calc(100% + 15px); /* Espaçamento do ícone */
+    top: calc(100% + 15px);
     right: 0;
-    width: 200px; /* Largura ajustada */
+    width: 200px;
 }
 
-/* Estilos do Modal de Configurações */
 .settings-tabs {
     display: flex;
     border-bottom: 1px solid var(--border-color);
@@ -1042,7 +1039,7 @@ body.light-theme .bot-message pre {
     list-style: none;
     max-height: 200px;
     overflow-y: auto;
-    padding-right: 10px; /* Para a barra de rolagem não sobrepor o conteúdo */
+    padding-right: 10px;
 }
 
 .memory-item {
@@ -1068,36 +1065,29 @@ body.light-theme .bot-message pre {
 }
 
 
-/* =============================================== */
-/* ESTILOS PARA DISPOSITIVOS MÓVEIS (MAX-WIDTH: 768px) */
-/* =============================================== */
 @media (max-width: 768px) {
 
-    /* --- Botão do Menu (Hambúrguer) --- */
     #menu-toggle-btn {
-        display: flex; /* Mostra o botão do menu em telas pequenas */
+        display: flex;
         margin-right: 10px;
     }
 
-    /* --- Barra Lateral (Sidebar) --- */
     .sidebar-history {
-        position: fixed; /* Posição fixa para deslizar sobre o conteúdo */
+        position: fixed;
         left: 0;
         top: 0;
         height: 100%;
-        z-index: 2000; /* Z-index alto para ficar na frente de tudo */
-        transform: translateX(-100%); /* Esconde o menu para a esquerda por padrão */
+        z-index: 2000;
+        transform: translateX(-100%);
         transition: transform 0.3s ease-in-out;
         box-shadow: 0 0 25px rgba(0,0,0,0.5);
         border-right: 1px solid var(--border-color);
     }
 
-    /* --- Estado Visível da Sidebar --- */
     body.sidebar-visible .sidebar-history {
-        transform: translateX(0); /* Move o menu para a posição visível */
+        transform: translateX(0);
     }
 
-    /* --- Overlay (fundo escurecido) --- */
     .chat-wrapper::before {
         content: '';
         position: fixed;
@@ -1106,20 +1096,19 @@ body.light-theme .bot-message pre {
         width: 100%;
         height: 100%;
         background-color: rgba(0, 0, 0, 0.5);
-        z-index: 1999; /* Fica atrás do menu, mas na frente do conteúdo */
+        z-index: 1999;
         opacity: 0;
-        pointer-events: none; /* Não pode ser clicado por padrão */
+        pointer-events: none;
         transition: opacity 0.3s ease-in-out;
     }
 
     body.sidebar-visible .chat-wrapper::before {
         opacity: 1;
-        pointer-events: auto; /* Permite clicar para fechar o menu */
+        pointer-events: auto;
     }
     
-    /* --- Ajustes no Layout Principal --- */
     .main-container {
-        flex-direction: column; /* Organiza a sidebar e o chat verticalmente (não visualmente) */
+        flex-direction: column;
     }
 
     .chat-wrapper {
@@ -1127,35 +1116,31 @@ body.light-theme .bot-message pre {
         transition: filter 0.3s ease-in-out;
     }
 
-    /* --- Topo e Conteúdo Principal --- */
     .top-bar {
-        padding: 0.5rem 1rem; /* Menor preenchimento na barra superior */
+        padding: 0.5rem 1rem;
     }
 
     #chat-log {
-        padding: 1rem; /* Menor preenchimento na área de chat */
-        padding-bottom: 30px; /* Espaço para as ações da mensagem não serem cortadas */
+        padding: 1rem;
+        padding-bottom: 30px;
     }
     
-    /* --- Tela de Boas-Vindas --- */
     .welcome-message h1 {
-        font-size: 2rem; /* Fonte menor no título de boas-vindas */
+        font-size: 2rem;
     }
     .suggestion-cards {
-        grid-template-columns: 1fr; /* As sugestões ficam em uma única coluna */
+        grid-template-columns: 1fr;
         gap: 0.75rem;
         margin-top: 2rem;
         max-width: 100%;
     }
 
-    /* --- Modais --- */
     .modal {
-        width: 95%; /* Modais ocupam mais da tela */
+        width: 95%;
     }
 
-    /* --- Formulário de Login --- */
     .ra-digito-uf-row {
-        flex-direction: column; /* Empilha os campos de RA */
+        flex-direction: column;
         gap: 15px;
         align-items: stretch;
     }
