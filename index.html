@@ -1,208 +1,210 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Synapse IA</title>
-<link rel="icon" type="image/x-icon" href="favicon.ico">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-<link rel="stylesheet" href="styles.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Synapse IA</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
 </head>
-<body>
+<body class="loading">
 
-<div id="auth-container">
-<div class="wave-container">
-<div class="wave wave-top"></div>
-<div class="wave wave1"></div>
-<div class="wave wave2"></div>
-<div class="wave wave3"></div>
-</div>
-<main class="main-content-flex">
-<div class="info-column">
-<div class="container column-container">
-<header><h1 style="text-align: center;"><i class="fa-solid fa-brain"></i> Synapse IA</h1></header>
-<p style="color: var(--text-secondary);">O Synapse IA é seu assistente de IA para a vida acadêmica, projetado para simplificar e automatizar processos, liberando seu tempo para o que realmente importa: aprender.</p>
-<h2 style="font-size: 1.2rem; margin-top: 1.5rem; margin-bottom: 1rem; color: var(--text-primary);">O que você pode fazer:</h2>
-<ul>
-<li><i class="fa-solid fa-check-circle"></i> <div><strong>Resolver Dúvidas:</strong> Faça perguntas complexas e receba respostas detalhadas e precisas.</div></li>
-<li><i class="fa-solid fa-file-lines"></i> <div><strong>Analisar Tarefas:</strong> Envie imagens de suas tarefas e obtenha ajuda para resolvê-las.</div></li>
-<li><i class="fa-solid fa-shield-halved"></i> <div><strong>Segurança e Foco:</strong> Suas conversas são privadas e o ambiente é focado em produtividade acadêmica.</div></li>
-</ul>
-</div>
-</div>
+    <div id="loader">
+        <div class="spinner"></div>
+        <p>Carregando Synapse IA...</p>
+    </div>
 
-<div class="login-column">
-<div class="container column-container">
-<header><h1><i class="fa-solid fa-user-circle"></i> Acesso do Aluno</h1></header>
-<p style="text-align: center; margin-bottom: 1.5rem; color: var(--text-secondary);">Preencha seus dados da SED para acessar o sistema.</p>
-<div id="notification-area"></div>
-<form id="auth-form">
-<div class="form-group">
-<div class="ra-digito-uf-row">
-<div class="form-group ra-field">
-<label for="auth-ra-number">RA</label>
-<input type="text" id="auth-ra-number" placeholder="Seu RA" required pattern="\d*">
-</div>
-<div class="form-group digito-field">
-<label for="auth-ra-digit">Dígito</label>
-<input type="text" id="auth-ra-digit" placeholder="X" required maxlength="1">
-</div>
-<div class="form-group uf-field">
-<label for="auth-ra-state">UF</label>
-<select id="auth-ra-state" name="uf">
-<option value="SP" selected>SP</option>
-</select>
-</div>
-</div>
-</div>
-<div class="form-group">
-<label for="auth-password">Senha:</label>
-<div class="password-wrapper">
-<input type="password" id="auth-password" placeholder="Digite sua senha" required>
-</div>
-</div>
-<div class="form-group">
-<button id="auth-button" type="submit">
-<span>Entrar</span>
-<i class="fa-solid fa-spinner fa-spin" style="display: none;"></i>
-</button>
-</div>
-</form>
-</div>
-</div>
-</main>
-</div>
+    <div id="auth-container" style="display: none;">
+        <div class="wave-container">
+            <div class="wave wave-top"></div>
+            <div class="wave wave1"></div>
+            <div class="wave wave2"></div>
+            <div class="wave wave3"></div>
+        </div>
+        <main class="main-content-flex">
+            <div class="info-column">
+                <div class="container column-container">
+                    <header><h1 style="text-align: center;"><i class="fa-solid fa-brain"></i> Synapse IA</h1></header>
+                    <p style="color: var(--text-secondary);">O Synapse IA é seu assistente de IA para a vida acadêmica, projetado para simplificar e automatizar processos, liberando seu tempo para o que realmente importa: aprender.</p>
+                    <h2 style="font-size: 1.2rem; margin-top: 1.5rem; margin-bottom: 1rem; color: var(--text-primary);">O que você pode fazer:</h2>
+                    <ul>
+                        <li><i class="fa-solid fa-check-circle"></i> <div><strong>Resolver Dúvidas:</strong> Faça perguntas complexas e receba respostas detalhadas e precisas.</div></li>
+                        <li><i class="fa-solid fa-file-lines"></i> <div><strong>Analisar Tarefas e Arquivos:</strong> Envie imagens ou arquivos de texto (.txt, .js, etc.) e obtenha ajuda.</div></li>
+                        <li><i class="fa-solid fa-shield-halved"></i> <div><strong>Segurança e Foco:</strong> Suas conversas são privadas e o ambiente é focado em produtividade acadêmica.</div></li>
+                    </ul>
+                </div>
+            </div>
 
-<div class="main-container" style="display: none;">
-<aside class="sidebar-history">
-<div class="sidebar-header">
-<button id="new-chat-btn" class="sidebar-action-btn" aria-label="Iniciar nova conversa">
-<i class="fa-solid fa-plus" aria-hidden="true"></i>
-<span>Nova Conversa</span>
-</button>
-</div>
-<div class="history-search-container">
-<i class="fa-solid fa-magnifying-glass"></i>
-<input type="text" id="history-search-input" placeholder="Buscar conversas...">
-</div>
-<nav class="history-nav">
-<p class="history-title">Recentes</p>
-<ul id="history-list"></ul>
-</nav>
-<div class="sidebar-footer">
-<a href="#" class="sidebar-footer-link" data-modal-target="help-modal"><i class="fa-solid fa-circle-question" aria-hidden="true"></i><span>Ajuda</span></a>
-<a href="#" class="sidebar-footer-link" data-modal-target="activity-modal"><i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i><span>Atividade</span></a>
-<a href="#" class="sidebar-footer-link" data-modal-target="settings-modal"><i class="fa-solid fa-gear" aria-hidden="true"></i><span>Configurações</span></a>
-<a href="#" class="sidebar-footer-link" id="theme-toggle-btn"></a>
-</div>
-</aside>
+            <div class="login-column">
+                <div class="container column-container">
+                    <header><h1><i class="fa-solid fa-user-circle"></i> Acesso do Aluno</h1></header>
+                    <p style="text-align: center; margin-bottom: 1.5rem; color: var(--text-secondary);">Preencha seus dados da SED para acessar o sistema.</p>
+                    <div id="notification-area"></div>
+                    <form id="auth-form">
+                        <div class="form-group">
+                            <div class="ra-digito-uf-row">
+                                <div class="form-group ra-field">
+                                    <label for="auth-ra-number">RA</label>
+                                    <input type="text" id="auth-ra-number" placeholder="Seu RA" required pattern="\d*">
+                                </div>
+                                <div class="form-group digito-field">
+                                    <label for="auth-ra-digit">Dígito</label>
+                                    <input type="text" id="auth-ra-digit" placeholder="X" required maxlength="1">
+                                </div>
+                                <div class="form-group uf-field">
+                                    <label for="auth-ra-state">UF</label>
+                                    <select id="auth-ra-state" name="uf">
+                                        <option value="SP" selected>SP</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="auth-password">Senha:</label>
+                            <div class="password-wrapper">
+                                <input type="password" id="auth-password" placeholder="Digite sua senha" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <button id="auth-button" type="submit">
+                                <span>Entrar</span>
+                                <i class="fa-solid fa-spinner fa-spin" style="display: none;"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
 
-<div class="chat-wrapper">
-<header class="top-bar">
-                 <div id="model-selector-container">
+    <div class="main-container" style="display: none;">
+        <aside class="sidebar-history">
+            <div class="sidebar-header">
+                <button id="new-chat-btn" class="sidebar-action-btn" aria-label="Iniciar nova conversa">
+                    <i class="fa-solid fa-plus" aria-hidden="true"></i>
+                    <span>Nova Conversa</span>
+                </button>
+            </div>
+            <div class="history-search-container">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="history-search-input" placeholder="Buscar conversas...">
+            </div>
+            <nav class="history-nav">
+                <p class="history-title">Recentes</p>
+                <ul id="history-list"></ul>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="#" class="sidebar-footer-link" data-modal-target="help-modal"><i class="fa-solid fa-circle-question" aria-hidden="true"></i><span>Ajuda</span></a>
+                <a href="#" class="sidebar-footer-link" data-modal-target="activity-modal"><i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i><span>Atividade</span></a>
+                <a href="#" class="sidebar-footer-link" data-modal-target="settings-modal"><i class="fa-solid fa-gear" aria-hidden="true"></i><span>Configurações</span></a>
+                <a href="#" class="sidebar-footer-link" id="theme-toggle-btn"></a>
+            </div>
+        </aside>
+
+        <div class="chat-wrapper">
+            <header class="top-bar">
                 <button id="menu-toggle-btn" class="chat-icon-btn" aria-label="Abrir menu">
                     <i class="fa-solid fa-bars" aria-hidden="true"></i>
                 </button>
                 <div id="model-selector-container">
-<div class="model-selector" id="model-selector-active" role="button" aria-haspopup="true" aria-expanded="false" aria-controls="model-dropdown" tabindex="0">
-<i class="fa-solid fa-brain" aria-hidden="true"></i>
-<span id="selected-model-name">Synapse IA</span>
-<i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
-</div>
-<div id="model-dropdown" role="menu" aria-labelledby="model-selector-active"></div>
-</div>
+                    <div class="model-selector" id="model-selector-active" role="button" aria-haspopup="true" aria-expanded="false" aria-controls="model-dropdown" tabindex="0">
+                        <i class="fa-solid fa-brain" aria-hidden="true"></i>
+                        <span id="selected-model-name">Synapse IA</span>
+                        <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+                    </div>
+                    <div id="model-dropdown" role="menu" aria-labelledby="model-selector-active"></div>
+                </div>
+                
+                <div class="user-actions">
+                    <button class="top-bar-btn">PRO</button>
+                    <div id="profile-menu-container">
+                        <img src="https://i.ibb.co/7zS4Q1s/profile-placeholder.png" alt="Foto de Perfil" id="user-profile-pic">
+                        <div id="profile-dropdown" class="options-dropdown">
+                            <a href="#" data-modal-target="profile-modal"><i class="fa-solid fa-user-pen"></i> Editar Perfil</a>
+                            <a href="#" id="logout-btn" class="danger-option"><i class="fa-solid fa-right-from-bracket"></i> Deslogar</a>
+                        </div>
+                    </div>
+                </div>
+            </header>
 
-<div class="user-actions">
-<button class="top-bar-btn">PRO</button>
-<div id="profile-menu-container">
-<img src="https://i.ibb.co/7zS4Q1s/profile-placeholder.png" alt="Foto de Perfil" id="user-profile-pic">
-<div id="profile-dropdown" class="options-dropdown">
-<a href="#" data-modal-target="profile-modal"><i class="fa-solid fa-user-pen"></i> Editar Perfil</a>
-<a href="#" id="logout-btn" class="danger-option"><i class="fa-solid fa-right-from-bracket"></i> Deslogar</a>
-</div>
-</div>
-</div>
-</header>
+            <main class="chat-area">
+                <div id="chat-log">
+                    <div class="welcome-message-container">
+                         <div class="welcome-message">
+                            <h1 id="welcome-header">Olá!</h1>
+                            <p>Como posso te ajudar a aprender hoje?</p>
+                         </div>
+                         <div class="suggestion-cards">
+                            <div class="suggestion-card" data-prompt="Explique o conceito de Buracos Negros em termos simples.">
+                                <h4>Explique um Conceito</h4>
+                                <p>Buracos Negros em termos simples</p>
+                            </div>
+                             <div class="suggestion-card" data-prompt="Resuma os principais eventos da Revolução Francesa em uma lista.">
+                                <h4>Resuma um Tópico</h4>
+                                <p>Eventos da Revolução Francesa</p>
+                            </div>
+                             <div class="suggestion-card" data-prompt="Crie um roteiro de estudos de 7 dias para aprender o básico de Python.">
+                                <h4>Crie um Roteiro</h4>
+                                <p>Plano de estudos para Python</p>
+                            </div>
+                             <div class="suggestion-card" data-prompt="Como posso me preparar para uma apresentação importante na faculdade?">
+                                <h4>Dê uma Dica</h4>
+                                <p>Como se preparar para uma apresentação</p>
+                            </div>
+                         </div>
+                    </div>
+                </div>
+            </main>
 
-<main class="chat-area">
-<div id="chat-log">
-<div class="welcome-message-container">
-<div class="welcome-message">
-<h1 id="welcome-header">Olá!</h1>
-<p>Como posso te ajudar a aprender hoje?</p>
-</div>
-<div class="suggestion-cards">
-<div class="suggestion-card" data-prompt="Explique o conceito de Buracos Negros em termos simples.">
-<h4>Explique um Conceito</h4>
-<p>Buracos Negros em termos simples</p>
-</div>
-<div class="suggestion-card" data-prompt="Resuma os principais eventos da Revolução Francesa em uma lista.">
-<h4>Resuma um Tópico</h4>
-<p>Eventos da Revolução Francesa</p>
-</div>
-<div class="suggestion-card" data-prompt="Crie um roteiro de estudos de 7 dias para aprender o básico de Python.">
-<h4>Crie um Roteiro</h4>
-<p>Plano de estudos para Python</p>
-</div>
-<div class="suggestion-card" data-prompt="Como posso me preparar para uma apresentação importante na faculdade?">
-<h4>Dê uma Dica</h4>
-<p>Como se preparar para uma apresentação</p>
-</div>
-</div>
-</div>
-</div>
-</main>
+            <div class="chat-input-container">
+                <div id="file-preview-container" class="file-preview-container" style="display: none;">
+                    <div id="file-preview-container-items"></div>
+                </div>
+                <form id="chat-form" aria-label="Formulário de chat">
+                    <div class="input-wrapper">
+                        <input type="file" id="file-input" accept="image/*,text/plain,.js,.py,.html,.css,.json,.md,.java,.c,.cpp,.cs,.ts,.jar" multiple>
+                        <textarea id="chat-input" placeholder="Peça ao Synapse IA..." autocomplete="off" aria-label="Digite sua pergunta" rows="1"></textarea>
+                        <button type="button" id="attach-btn" class="chat-icon-btn" title="Anexar Arquivo" aria-label="Anexar Arquivo">
+                            <i class="fa-solid fa-paperclip" aria-hidden="true"></i>
+                        </button>
+                        <button type="submit" id="chat-send-btn" class="chat-icon-btn" title="Enviar Mensagem" aria-label="Enviar Mensagem">
+                            <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                </form>
+                <button id="stop-generating-btn">
+                    <i class="fa-solid fa-stop"></i> Parar Geração
+                </button>
+                <p class="footer-info">O Synapse IA pode cometer erros. Considere verificar informações importantes.</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal-backdrop" id="modal-backdrop"></div>
+    <div class="modal" id="profile-modal">
+        <div class="modal-header"><h2>Editar Perfil</h2><button class="close-modal-btn">&times;</button></div>
+        <div class="modal-body">
+            <div class="profile-form"><div class="profile-pic-editor"><img src="https://i.ibb.co/7zS4Q1s/profile-placeholder.png" alt="Prévia da foto de perfil" id="profile-pic-preview"><label for="profile-pic-input" class="profile-pic-upload-btn"><i class="fa-solid fa-camera"></i> Alterar Foto</label><input type="file" id="profile-pic-input" accept="image/*" style="display: none;"></div><div class="input-group"><label for="profile-name-input">Nome de Exibição</label><input type="text" id="profile-name-input" placeholder="Seu nome ou apelido"></div><button id="save-profile-btn" class="auth-btn">Salvar Alterações</button></div>
+        </div>
+    </div>
+    <div class="modal" id="settings-modal">
+        <div class="modal-header"><h2>Configurações</h2><button class="close-modal-btn">&times;</button></div>
+        <div class="modal-body"><div class="settings-tabs"><button class="tab-btn active" data-tab="tab-general">Geral</button><button class="tab-btn" data-tab="tab-memories">Memórias</button></div><div class="tab-content active" id="tab-general"><h3>Configurações Gerais</h3><div class="setting-item"><span>Limpar todo o histórico de conversas</span><button id="clear-all-chats-btn" class="auth-btn danger">Limpar Histórico</button></div><p class="setting-note">Atenção: Esta ação é irreversível e apagará todas as suas conversas salvas neste navegador.</p></div><div class="tab-content" id="tab-memories"><h3>Gerenciar Memórias do Bot</h3><p class="setting-note">Adicione fatos e instruções para moldar a personalidade e o conhecimento base do Synapse IA. Cada memória é uma instrução direta.</p><form id="add-memory-form"><div class="input-group"><textarea id="memory-input" placeholder="Ex: Você sempre responde em um tom amigável e didático."></textarea><button type="submit" class="auth-btn">Adicionar Memória</button></div></form><div class="memory-list-container"><h4>Memórias Atuais:</h4><ul id="memory-list"></ul></div></div></div>
+    </div>
+    <div class="modal" id="help-modal">
+        <div class="modal-header"><h2>Ajuda</h2><button class="close-modal-btn">&times;</button></div>
+        <div class="modal-body"><h3>Bem-vindo ao Synapse IA!</h3><p>Eu sou seu assistente pessoal para estudos. Você pode me pedir para:</p><ul><li>Explicar tópicos complexos.</li><li>Resumir textos ou artigos.</li><li>Analisar imagens e arquivos de código.</li><li>E muito mais!</li></ul></div>
+    </div>
+    <div class="modal" id="activity-modal">
+        <div class="modal-header"><h2>Sua Atividade</h2><button class="close-modal-btn">&times;</button></div>
+        <div class="modal-body"><p>Esta é uma lista de suas conversas recentes salvas no seu navegador.</p><ul id="activity-history-list"></ul></div>
+    </div>
 
-<div class="chat-input-container">
-<div id="image-preview-container" style="display: none;">
-<img id="image-preview" src="#" alt="Image preview"/>
-<button id="remove-image-btn" aria-label="Remover imagem"><i class="fa-solid fa-times" aria-hidden="true"></i></button>
-</div>
-<form id="chat-form" aria-label="Formulário de chat">
-<div class="input-wrapper">
-<input type="file" id="image-input" accept="image/*" style="display: none;" aria-hidden="true">
-<input type="text" id="chat-input" placeholder="Peça ao Synapse IA..." autocomplete="off" aria-label="Digite sua pergunta">
-<button type="button" id="attach-btn" class="chat-icon-btn" title="Anexar Imagem" aria-label="Anexar Imagem">
-<i class="fa-solid fa-paperclip" aria-hidden="true"></i>
-</button>
-<button type="submit" id="chat-send-btn" class="chat-icon-btn" title="Enviar Mensagem" aria-label="Enviar Mensagem">
-<i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
-</button>
-</div>
-</form>
-<button id="stop-generating-btn">
-<i class="fa-solid fa-stop"></i> Parar Geração
-</button>
-<p class="footer-info">O Synapse IA pode cometer erros. Considere verificar informações importantes.</p>
-</div>
-</div>
-</div>
-
-<div class="modal-backdrop" id="modal-backdrop"></div>
-<div class="modal" id="profile-modal">
-<div class="modal-header"><h2>Editar Perfil</h2><button class="close-modal-btn">&times;</button></div>
-<div class="modal-body">
-<div class="profile-form"><div class="profile-pic-editor"><img src="https://i.ibb.co/7zS4Q1s/profile-placeholder.png" alt="Prévia da foto de perfil" id="profile-pic-preview"><label for="profile-pic-input" class="profile-pic-upload-btn"><i class="fa-solid fa-camera"></i> Alterar Foto</label><input type="file" id="profile-pic-input" accept="image/*" style="display: none;"></div><div class="input-group"><label for="profile-name-input">Nome de Exibição</label><input type="text" id="profile-name-input" placeholder="Seu nome ou apelido"></div><button id="save-profile-btn" class="auth-btn">Salvar Alterações</button></div>
-</div>
-</div>
-<div class="modal" id="settings-modal">
-<div class="modal-header"><h2>Configurações</h2><button class="close-modal-btn">&times;</button></div>
-<div class="modal-body"><div class="settings-tabs"><button class="tab-btn active" data-tab="tab-general">Geral</button><button class="tab-btn" data-tab="tab-memories">Memórias</button></div><div class="tab-content active" id="tab-general"><h3>Configurações Gerais</h3><div class="setting-item"><span>Limpar todo o histórico de conversas</span><button id="clear-all-chats-btn" class="auth-btn danger">Limpar Histórico</button></div><p class="setting-note">Atenção: Esta ação é irreversível e apagará todas as suas conversas salvas neste navegador.</p></div><div class="tab-content" id="tab-memories"><h3>Gerenciar Memórias do Bot</h3><p class="setting-note">Adicione fatos e instruções para moldar a personalidade e o conhecimento base do Synapse IA. Cada memória é uma instrução direta.</p><form id="add-memory-form"><div class="input-group"><textarea id="memory-input" placeholder="Ex: Você sempre responde em um tom amigável e didático."></textarea><button type="submit" class="auth-btn">Adicionar Memória</button></div></form><div class="memory-list-container"><h4>Memórias Atuais:</h4><ul id="memory-list"></ul></div></div></div>
-</div>
-<div class="modal" id="help-modal">
-<div class="modal-header"><h2>Ajuda</h2><button class="close-modal-btn">&times;</button></div>
-<div class="modal-body"><h3>Bem-vindo ao Synapse IA!</h3><p>Eu sou seu assistente pessoal para estudos. Você pode me pedir para:</p><ul><li>Explicar tópicos complexos.</li><li>Resumir textos ou artigos.</li><li>E muito mais!</li></ul></div>
-</div>
-<div class="modal" id="activity-modal">
-<div class="modal-header"><h2>Sua Atividade</h2><button class="close-modal-btn">&times;</button></div>
-<div class="modal-body"><p>Esta é uma lista de suas conversas recentes salvas no seu navegador.</p><ul id="activity-history-list"></ul></div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-<script src="script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="script.js"></script>
 </body>
-</html>
 </html>

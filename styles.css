@@ -531,27 +531,47 @@ body.light-theme #chat-send-btn:disabled { background-color: #e0e0e0; cursor: no
 
 .footer-info { text-align: center; font-size: 0.75rem; color: var(--text-secondary); margin-top: 1rem; }
 
-/* ======== ESTILOS DE PREVIEW DE ARQUIVO ======== */
-.file-preview-container {
+/* ======== ESTILOS DE PREVIEW DE ARQUIVO (ATUALIZADO) ======== */
+#file-preview-container {
     margin-bottom: 10px;
-    padding: 10px;
     background-color: var(--bg-tertiary);
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    padding: 10px;
     animation: fadeIn 0.3s;
+    max-height: 150px;
+    overflow-y: auto;
+}
+#file-preview-container-items {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.file-preview-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--bg-primary);
+    padding: 8px;
+    border-radius: 6px;
 }
 .file-preview-info {
     display: flex;
     align-items: center;
     gap: 10px;
-    overflow: hidden;
+    overflow: hidden; /* Garante que o nome não quebre o layout */
 }
 .file-preview-info i {
     font-size: 1.5rem;
     color: var(--text-secondary);
+    flex-shrink: 0;
+}
+.file-preview-info img {
+    width: 40px;
+    height: 40px;
+    border-radius: 4px;
+    object-fit: cover;
+    flex-shrink: 0;
 }
 .file-preview-details {
     display: flex;
@@ -567,13 +587,7 @@ body.light-theme #chat-send-btn:disabled { background-color: #e0e0e0; cursor: no
     font-size: 0.8rem;
     color: var(--text-secondary);
 }
-#file-preview-container img {
-    max-width: 80px;
-    max-height: 80px;
-    border-radius: var(--border-radius);
-    object-fit: cover;
-}
-#remove-file-btn {
+.remove-file-btn {
     background-color: transparent;
     border: none;
     color: var(--text-secondary);
@@ -581,11 +595,13 @@ body.light-theme #chat-send-btn:disabled { background-color: #e0e0e0; cursor: no
     cursor: pointer;
     padding: 5px;
     border-radius: 50%;
+    flex-shrink: 0;
 }
-#remove-file-btn:hover {
+.remove-file-btn:hover {
     color: var(--error-color);
     background-color: rgba(255, 68, 68, 0.1);
 }
+
 
 /* === ESTILOS DE MENSAGEM DE CHAT (ATUALIZADOS) === */
 .gemini-message {
